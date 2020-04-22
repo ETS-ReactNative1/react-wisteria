@@ -26,6 +26,8 @@ const useStateManagement = (initialState, derivedStateSyncers) => {
             return newState;
         }, cb);
 
+        // Run the derivedStateSyncers in the next setState in order to get updated snapshot
+        // from the previous setState and to batch the derived states updates with one render.
         setState((newState) => {
             const prevState = prevStateRef.current;
             derivedStateSyncers.forEach((d) => d({ context: newState, prevContext: prevState, setContext }));
@@ -33,6 +35,7 @@ const useStateManagement = (initialState, derivedStateSyncers) => {
         });
     }, [derivedStateSyncers]);
 
+    // We want to call all the derivedStateSyncers on initial render.
     if (initialRenderRef.current) {
         derivedStateSyncers.forEach((d) => d({ context: state, prevContext: state, force: true, setContext }));
     }

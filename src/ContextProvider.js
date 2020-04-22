@@ -9,11 +9,11 @@ const ContextProvider = ({
     hooks = []
 }) => (Component) => (props) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [state, setContext] = useStateManagement(initialPropsMapper(props), derivedStateSyncers);
-    hooks.forEach((h) => h({ context: state, setContext }));
+    const [context, setContext] = useStateManagement(initialPropsMapper(props), derivedStateSyncers);
+    hooks.forEach((h) => h({ context, setContext }));
 
     return (
-        <Context.Provider value={{ context: state, setContext }}>
+        <Context.Provider value={{ context, setContext }}>
             <Component {...props}/>
         </Context.Provider>
     );
