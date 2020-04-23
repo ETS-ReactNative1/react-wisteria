@@ -118,7 +118,7 @@ Up until now, we can see that the Context we passed into the options of the libr
 But what if we need to map the Root props to a different state structure? Easy. We just pass another option (`initialPropsMapper`):
 
 ```js
-import ReactFpContext from 'react-fp-context'';
+import ReactFpContext from 'react-fp-context';
 import CounterContext from './CounterContext';
 
 const Counter = () => {
