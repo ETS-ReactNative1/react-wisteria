@@ -4,7 +4,7 @@
 
 ## Tiny Background
 
-The concept was kicked off when I was in one of the Hackathons in Fiverr (The company I work in) where we started (Me & Igor Burshtein) coding a React project and we had only two days to finish the things! Two days that prevents us from creating (actions - selectors - reducers - types - connectors) files all over the place! We needed a fast and quick state management library... And BTW we won in the hackathon!
+The concept was kicked off when I was in one of the Hackathons in [Fiverr](https://github.com/fiverr) (The company I work in) where we started (Me & Igor Burshtein) coding a React project and we had only two days to finish the things! Two days that prevents us from creating (actions - selectors - reducers - types - connectors) files all over the place! We needed a fast and quick state management library... And BTW we won in the hackathon!
 
 ## Installation
 
@@ -102,4 +102,4 @@ After that we define this syncer in our syncers list as so:
 
 Not only we get synced state at each point of time in our `effects` but we also have only one render (with the two changes - `count` and `color`) thanks to React setState batching.
 
-One of the derived states I enjoyed is related to using `fiverr/passable` package (You're invited to see this adorable validation package!) to validate my state. I used then the `initialPropsMapper` in order to scope my state below `mystate` and then all my updates where below this `mystate` namespace and in my dervied state syncer I was only checking if the reference of `mystate` has been broken (changed) and if so then execute the validations again with passing the state! I don't really care how and where it got changed since `lodash/fp` backing this library break the parent reference upper to the change so I can distungish changes in upper levels without going into the details!
+One of the derived states I enjoyed is related to using [`fiverr/passable`](https://github.com/fiverr/passable) package (You're invited to see this adorable validation package!) to validate my state. I used then the `initialPropsMapper` in order to scope my state below `mystate` and then all my updates where below this `mystate` namespace and in my dervied state syncer I was only checking if the reference of `mystate` has been broken (changed) and if so then execute the validations again with passing the state! I don't really care how and where it got changed since `lodash/fp` backing this library break the parent reference upper to the change so I can distungish changes in upper levels without going into the details!
