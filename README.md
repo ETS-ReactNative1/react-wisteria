@@ -54,6 +54,10 @@ Updating nested paths is so easy since `react-fp-context` is using `lodash/fp` A
 
 ```js
 setContext('mystate.count', 5);
+
+// you can also create new paths that doesn't exist into your state exactly as we do it in lodash/fp:
+// setContext('newValue', 5);
+// setContext('newValue.nested.path.value', 5);
 ```
 
 Another two major principles of `react-fp-context` is the handling of effects and derived states.
