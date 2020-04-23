@@ -72,6 +72,8 @@ The next thing is the syncing of derived states.. See why we need derived state 
 
 I'm presenting the `effects` solution of syncing states and we'll discuss it later. I want to color the even numbers with blue and the odd numbers with red in the `<Display/>` component. (I know that you think that it can be computed in the render phase but I want to see it in another place so I need it into the state).
 
+![Apr-23-2020 13-20-45](https://user-images.githubusercontent.com/7091543/80088505-4855e000-8565-11ea-8a07-54d71ad6f255.gif)
+
 Have a look on the effect implementation below:
 
 ![image](https://user-images.githubusercontent.com/7091543/80084792-04141100-8560-11ea-9176-dd4bcd59d052.png)
