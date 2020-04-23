@@ -22,23 +22,91 @@ Suppose that we've a **RootComponent** and some **ChildComponent** (not necessar
 
 Let's suppose that this application have 3 components (`Counter`/`Display`/`Controls`) whereas `<Display/>` and `<Controls/>` are the children of `<Counter/>` (The Root component of our app).
 
-First step is to wrap our **root component** (Counter in this case) as so:
+First step is to create a context:
 
-![image](https://user-images.githubusercontent.com/7091543/80080101-c9a77580-8559-11ea-8372-2d03156c5c5d.png)
+```js
+import React from 'react';
+
+const CounterContext = React.createContext();
+export default CounterContext;
+```
+
+then we wrap our **root component** (`<Counter/>` in this case) as so:
+
+```js
+import ReactFpContext from 'react-fp-context';
+import CounterContext from './CounterContext';
+
+const Counter = () => {
+    return (
+        <div className="counter">
+            <Display/>
+            <Controls/>
+        </div>
+    );
+};
+
+export default ReactFpContext({
+    Context: CounterContext
+})(Counter);
+```
 
 You can see that we send over the context in the options object.
 
 Now let's render our Root component first with its initial props (currently only the current counter value) as so:
 
-![image](https://user-images.githubusercontent.com/7091543/80080315-21de7780-855a-11ea-93dd-af03d24decce.png)
+```js
+// From Storybook
+export const CounterAt_0 = () => {
+    return (<Counter count={0}/>);
+};
+```
 
 Now children can reach the state easily (in here, we show the `<Display/>` component) and **this is the ONLY way to read state using react-fp-context**:
 
-![image](https://user-images.githubusercontent.com/7091543/80080459-55b99d00-855a-11ea-9776-f7fbf23f6206.png)
+```js
+import CounterContext from './CounterContext';
+
+const Display = () => {
+    const { context } = React.useContext(CounterContext);
+    const { count } = context;
+
+    return (
+        <div className="display">
+            {count}
+        </div>
+    )
+};
+
+export default Display;
+```
 
 So now our second child `<Controls/>` want to control the state so to control the state we can do as so:
 
-![image](https://user-images.githubusercontent.com/7091543/80080862-dbd5e380-855a-11ea-9735-2402fba0d506.png)
+```js
+import CounterContext from './CounterContext';
+
+const Controls = () => {
+    const { setContext } = React.useContext(CounterContext);
+
+    const onAddition = () => {
+        setContext('count', (count) => count + 1);
+    };
+
+    const onDecrement = () => {
+        setContext('count', (count) => count - 1);
+    };
+
+    return (
+        <div className="controls">
+            <div className="control" onClick={onAddition}>+</div>
+            <div className="control" onClick={onDecrement}>-</div>
+        </div>
+    )
+};
+
+export default Controls;
+```
 
 **Pay attention:** That multiple `setContext` will be batched based on React setState batching with having only one render phase!
 
@@ -46,7 +114,25 @@ Until now, we can see that the Context we passed in into the options of the libr
 
 What if we need to map the Root props to a different structure of state? Pretty easy. We just pass another option (`initialPropsMapper`) as so:
 
-![image](https://user-images.githubusercontent.com/7091543/80081841-27d55800-855c-11ea-9cf0-8818b761b64a.png)
+```js
+import ReactFpContext from 'react-fp-context'';
+import CounterContext from './CounterContext';
+
+const Counter = () => {
+    return (
+        <div className="counter">
+            <Display/>
+            <Controls/>
+        </div>
+    );
+};
+
+export default ReactFpContext({
+    Context: CounterContext,
+    initialPropsMapper: ({ count }) => ({ mystate: { count }})
+})(Counter);
+
+```
 
 if you console log your context you'll see that it received the new shape!
 
@@ -64,11 +150,42 @@ Another two major principles of `react-fp-context` is the handling of effects an
 
 Let's suppose that we've an effect that alerts some message (or do a request to some service) on a specific condition (e.g. Once we hit 10 in the counter) then we need access to the `context` and `setContext` into our `effects` in order to inspect and respond with updates and we can do it as so:
 
-![image](https://user-images.githubusercontent.com/7091543/80083626-7daaff80-855e-11ea-8a65-18134701a0b6.png)
+```js
+import React from 'react';
+
+const useRequestReportOnTen = ({ context }) => {
+    const { count } = context;
+
+    React.useEffect(() => {
+        if (count !== 10) { return; }
+
+        alert('Got ten and sending to the backend!');
+    }, [count]);
+};
+
+export default useRequestReportOnTen;
+```
 
 We define our hook first and then we inject it into our options as so:
 
-![image](https://user-images.githubusercontent.com/7091543/80083970-e6927780-855e-11ea-8e6b-96fcabee89dd.png)
+```js
+import ReactFpContext from 'react-fp-context';
+import CounterContext from './CounterContext';
+
+const Counter = () => {
+    return (
+        <div className="counter">
+            <Display/>
+            <Controls/>
+        </div>
+    );
+};
+
+export default ReactFpContext({
+    Context: CounterContext,
+    effects: [useRequestReportOnTen]
+})(Counter);
+```
 
 Pay attention that our library will inject all these `effects` array with `({ context, setContext })` so we can do our best out there!
 
@@ -80,13 +197,42 @@ I'm presenting the `effects` solution of syncing states and we'll discuss it lat
 
 Have a look on the effect implementation below:
 
-![image](https://user-images.githubusercontent.com/7091543/80084792-04141100-8560-11ea-9176-dd4bcd59d052.png)
+```js
+import React from 'react';
+
+const useBlueOnEvenRedOnOdd = ({ context, setContext }) => {
+    const { count } = context;
+
+    React.useEffect(() => {
+        setContext('color', count % 2 === 0 ? 'blue' : 'red');
+    }, [count, setContext]);
+};
+
+export default useBlueOnEvenRedOnOdd;
+```
 
 That's really nice! whenever the count changes we update the color in the `useEffect`! But there's something missing in this implementation. Let's implement it in another way while consoling some logs!
 
 See the implmentation below:
 
-![image](https://user-images.githubusercontent.com/7091543/80085049-64a34e00-8560-11ea-92cd-de6157b6518b.png)
+```js
+import React from 'react';
+
+const useBlueOnEvenRedOnOdd = ({ context, setContext }) => {
+    const { count, color } = context;
+
+    React.useEffect(() => {
+        console.log('unsynced state at some point in effects', { count, color });
+        const newColor = count % 2 === 0 ? 'blue' : 'red';
+
+        if (newColor === color) { return; }
+
+        setContext('color', newColor);
+    }, [count, setContext, color]);
+};
+
+export default useBlueOnEvenRedOnOdd;
+```
 
 If we run this and click on some control **only once** we get these logs:
 
@@ -96,7 +242,18 @@ Pay attention that we're rendering twice since the `count` got changed and the s
 
 How we can solve this situation? Since we're syncing states and we don't do any Browser API (DOM Mutations/Async Operations) then we've another options to pass for derivedState syncing called `derivedStateSyncers`! First we define some function with the following decleration:
 
-![image](https://user-images.githubusercontent.com/7091543/80085765-5e61a180-8561-11ea-96f8-554599fc9116.png)
+```js
+const blueOnEvenRedInOdd = ({ context, prevContext, setContext, force }) => {
+    const { count } = context;
+    const { count: prevCount } = prevContext;
+
+    if (count === prevCount && !force) { return; }
+
+    setContext('color', count % 2 === 0 ? 'blue' : 'red');
+};
+
+export default blueOnEvenRedInOdd;
+```
 
 This function receives the context, setContext, prevContext, force (boolean) and updates (exactly in the same way we did so far) the `color` based on changes in the `count`.
 
@@ -104,8 +261,27 @@ This function receives the context, setContext, prevContext, force (boolean) and
 
 After that we define this syncer in our syncers list as so:
 
-![image](https://user-images.githubusercontent.com/7091543/80086301-2c047400-8562-11ea-9ea5-074196ae358b.png)
+```js
+import ReactFpContext from 'react-fp-context';
+import CounterContext from './CounterContext';
+
+const Counter = () => {
+    return (
+        <div className="counter">
+            <Display/>
+            <Controls/>
+        </div>
+    );
+};
+
+export default ReactFpContext({
+    Context: CounterContext,
+    derivedStateSyncers: [blueOnEvenRedInOdd]
+})(Counter);
+```
 
 Not only we get synced state at each point of time in our `effects` but we also have only one render (with the two changes - `count` and `color`) thanks to React setState batching.
+
+Remember that you can mix `effects` and `derivedStateSyncers` at the same time whenever it fits more for the purpose as shown above!
 
 One of the derived states I enjoyed is related to using [`fiverr/passable`](https://github.com/fiverr/passable) package (You're invited to see this adorable validation package!) to validate my state. I used then the `initialPropsMapper` in order to scope my state below `mystate` and then all my updates where below this `mystate` namespace and in my dervied state syncer I was only checking if the reference of `mystate` has been broken (changed) and if so then execute the validations again with passing the state! I don't really care how and where it got changed since `lodash/fp` backing this library break the parent reference upper to the change so I can distungish changes in upper levels without going into the details!
