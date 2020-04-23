@@ -1,12 +1,11 @@
 import React from 'react';
-import ContextProvider from '../../src';
-import CounterContext from './context';
+import ReactFpContext from '../../src';
 import Display from './Display';
 import Controls from './Controls';
+import CounterContext from './context';
 import './style.scss';
 
 const Counter = () => {
-
     return (
         <div className="counter">
             <Display/>
@@ -15,6 +14,6 @@ const Counter = () => {
     );
 };
 
-export default ContextProvider({
+export default ReactFpContext({
     Context: CounterContext
 })(Counter);

@@ -1,5 +1,5 @@
 import React from 'react';
-import ContextProvider from '../../src';
+import ReactFpContext from '../../src';
 import CounterContext from './context';
 import Display from './Display';
 import Controls from './Controls';
@@ -16,7 +16,7 @@ const Counter = () => {
     );
 };
 
-export default ContextProvider({
+export default ReactFpContext({
     Context: CounterContext,
     derivedStateSyncers: [blueOnEvenRedInOdd]
 })(Counter);
