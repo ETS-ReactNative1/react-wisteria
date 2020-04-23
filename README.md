@@ -1,28 +1,30 @@
 # React FP Context
 
-**react-fp-context** is a library that wraps the React Context with a functional API that can make your life easier while getting/setting your state! only one way to get your state and one way to update it (no selectors/actions/reducers/types/connectors!)
+**react-fp-context** is a library that wraps the [React Context](https://reactjs.org/docs/context.html) with a functional API that makes it easier to work with state. It provides you with a single way to get your state and a single way to update it without the need for selectors, actions, reducers, types, connectors, etc.
 
 ## Background
 
-The concept was kicked off when I was in one of the Hackathons in [Fiverr](https://github.com/fiverr) (The company I work in) where we started (Me & Igor Burshtein) coding a React project and we had only two days to finish the things! Two days that prevents us from creating (actions - selectors - reducers - types - connectors) files all over the place! We needed a fast and quick state management library... And BTW we won in the hackathon!
+The idea arose during a Hackathon in [Fiverr](https://github.com/fiverr) (the company I work for) where @igor-burshtein and I had to develop a full React project over the course of just 2 days. With such a fast turnaround, there was no time to set up the usual structure with actions, selectors, reducers, etc, but we still found ourselves in need of a quick & easy way to manage state. And, so, enter this library.
+
+(BTW we won in the Hackathon!)
 
 ## Installation
 
 ```js
-npm i react-fp-context
+npm i react-fp-context --save
 ```
 
 ## Usage
 
-This library expose only one thing which is a ContextProvider-like (A Higher Order Component) that we pass to it some configurations and the Root component we've in our app.
+This library exposes only one thing: a ContextProvider-like HOC that can be passed configurations & the Root component we have in our app.
 
-Suppose that we've a **RootComponent** and some **ChildComponent** (not necessary a direct child).. Let's talk about Counter application where we can increment/decrement a counter with the value being displayed.
+As an example, let's use a standard Counter application where we can increment/decrement a counter whilst the value is being displayed.
 
 ![Apr-23-2020 11-48-06](https://user-images.githubusercontent.com/7091543/80079053-708b1200-8558-11ea-92d8-7756ac7d855e.gif)
 
-Let's suppose that this application have 3 components (`Counter`/`Display`/`Controls`) whereas `<Display/>` and `<Controls/>` are the children of `<Counter/>` (The Root component of our app).
+This application has 3 components (`Counter`, `Display` and `Controls`) with `<Display/>` and `<Controls/>` being the children of `<Counter/>` (the Root component of our app).
 
-First step is to create a context:
+First step is to create the context:
 
 ```js
 import React from 'react';
@@ -31,7 +33,7 @@ const CounterContext = React.createContext();
 export default CounterContext;
 ```
 
-then we wrap our **root component** (`<Counter/>` in this case) as so:
+then we wrap our **Root component** (`<Counter/>`) like this:
 
 ```js
 import ReactFpContext from 'react-fp-context';
@@ -51,18 +53,19 @@ export default ReactFpContext({
 })(Counter);
 ```
 
-You can see that we send over the context in the options object.
+As you can see, the context is being sent to ReactFpContext as part of its options.
 
-Now let's render our Root component first with its initial props (currently only the current counter value) as so:
+Let us now render our Root component with its initial props (only the current counter value):
 
 ```js
-// From Storybook
 export const CounterAt_0 = () => {
     return (<Counter count={0}/>);
 };
 ```
 
-Now children can reach the state easily (in here, we show the `<Display/>` component) and **this is the ONLY way to read state using react-fp-context**:
+The `<Display/>` component, which is a child of Root, can now reach the state easily.
+
+**Please note:** This is the ONLY way to read state using react-fp-context.
 
 ```js
 import CounterContext from './CounterContext';
@@ -81,7 +84,7 @@ const Display = () => {
 export default Display;
 ```
 
-So now our second child `<Controls/>` want to control the state so to control the state we can do as so:
+In our second child, `<Controls/>`, we want to update the state:
 
 ```js
 import CounterContext from './CounterContext';
@@ -108,11 +111,11 @@ const Controls = () => {
 export default Controls;
 ```
 
-**Pay attention:** That multiple `setContext` will be batched based on React setState batching with having only one render phase!
+**Please note:** Multiple `setContext` calls will be batched based on React.setState batching whilst having only one render phase.
 
-Until now, we can see that the Context we passed in into the options of the library has wrapped the values of the Root props and we can inspect the state by extracting `{ context }` and update it by extracting `{ setContext }`.
+Up until now, we can see that the Context we passed into the options of the library has wrapped the values of the Root props and we can inspect the state by extracting `{ context }` and update it by extracting `{ setContext }`.
 
-What if we need to map the Root props to a different structure of state? Pretty easy. We just pass another option (`initialPropsMapper`) as so:
+But what if we need to map the Root props to a different state structure? Easy. We just pass another option (`initialPropsMapper`):
 
 ```js
 import ReactFpContext from 'react-fp-context'';
@@ -134,9 +137,9 @@ export default ReactFpContext({
 
 ```
 
-if you console log your context you'll see that it received the new shape!
+If you console log your Context, you'll see that it now received the new shape.
 
-Updating nested paths is so easy since `react-fp-context` is using `lodash/fp` API behind the scene so the update should look something like this:
+Updating nested paths is also easy seeing that `react-fp-context` is using `lodash/fp` API under the hood:
 
 ```js
 setContext('mystate.count', 5);
@@ -146,9 +149,9 @@ setContext('mystate.count', 5);
 // setContext('newValue.nested.path.value', 5);
 ```
 
-Another two major principles of `react-fp-context` is the handling of effects and derived states.
+There are two other major principles of `react-fp-context` - the handling of effects and derived states.
 
-Let's suppose that we've an effect that alerts some message (or do a request to some service) on a specific condition (e.g. Once we hit 10 in the counter) then we need access to the `context` and `setContext` into our `effects` in order to inspect and respond with updates and we can do it as so:
+Let's say that we have an effect that pops an alert message (or triggers a service request) if a specific condition is met (e.g. once the counter hits 10). In order to do this, we need access to `context` and `setContext` in our `effects` which allows us to inspect and respond with updates:
 
 ```js
 import React from 'react';
@@ -166,7 +169,7 @@ const useRequestReportOnTen = ({ context }) => {
 export default useRequestReportOnTen;
 ```
 
-We define our hook first and then we inject it into our options as so:
+First we define our hook - then we inject it into our options:
 
 ```js
 import ReactFpContext from 'react-fp-context';
@@ -187,15 +190,15 @@ export default ReactFpContext({
 })(Counter);
 ```
 
-Pay attention that our library will inject all these `effects` array with `({ context, setContext })` so we can do our best out there!
+(react-fp-context will inject `({ context, setContext })` into all these `effects` arrays.)
 
-The next thing is the syncing of derived states.. See why we need derived state handling different than `effects` when we can use `effects` and get it done?!
+The next thing is the syncing of derived states. But why would you need derived state handling different from `effects` when you can simply use `effects` and be done with it?
 
-I'm presenting the `effects` solution of syncing states and we'll discuss it later. I want to color the even numbers with blue and the odd numbers with red in the `<Display/>` component. (I know that you think that it can be computed in the render phase but I want to see it in another place so I need it into the state).
+Below, we'll present the `effects` solution of syncing states. We want to color the even numbers with blue and the odd numbers with red in the `<Display/>` component. (You may think that it can be computed in the render phase, but we want to see it in another place, so we need it in the state).
 
 ![Apr-23-2020 13-20-45](https://user-images.githubusercontent.com/7091543/80088505-4855e000-8565-11ea-8a07-54d71ad6f255.gif)
 
-Have a look on the effect implementation below:
+Here's the implementation:
 
 ```js
 import React from 'react';
@@ -211,9 +214,7 @@ const useBlueOnEvenRedOnOdd = ({ context, setContext }) => {
 export default useBlueOnEvenRedOnOdd;
 ```
 
-That's really nice! whenever the count changes we update the color in the `useEffect`! But there's something missing in this implementation. Let's implement it in another way while consoling some logs!
-
-See the implmentation below:
+That's really nice! Whenever the count changes, we update the color in the `useEffect`. But there's something missing in this implementation. Let's build it in another way while consoling some logs:
 
 ```js
 import React from 'react';
@@ -234,13 +235,13 @@ const useBlueOnEvenRedOnOdd = ({ context, setContext }) => {
 export default useBlueOnEvenRedOnOdd;
 ```
 
-If we run this and click on some control **only once** we get these logs:
+If we run this and click **just once** on the control, we will get these logs:
 
 ![image](https://user-images.githubusercontent.com/7091543/80085215-96b4b000-8560-11ea-9aaf-d846616db610.png)
 
-Pay attention that we're rendering twice since the `count` got changed and the sync only starts in `useEffect` which means after the render phase (Unnecessary multiple renders) but that's not the toughest case! Pay attention that we got at some point in our effect unsynced state of number 1 being blue first and after that the sync comes which means that we can't be sure that our state is synced in our effects always which is bad and makes our life harder.
+We're rendering the component twice since the `count` was changed and the sync only starts in `useEffect` (after the render phase). But the unnecessary re-render isn't the worst thing - at some point in our effect, we got a unsynced state of number 1 being blue first and after that the sync comes which means that we can't be sure that our state is actually synced in our effects.
 
-How we can solve this situation? Since we're syncing states and we don't do any Browser API (DOM Mutations/Async Operations) then we've another options to pass for derivedState syncing called `derivedStateSyncers`! First we define some function with the following decleration:
+How can we solve this situation? Since we're syncing states and we aren't using the Browser API (DOM Mutations or Async Operations), we have another option to pass for derivedState syncing called `derivedStateSyncers`. First we define a function:
 
 ```js
 const blueOnEvenRedInOdd = ({ context, prevContext, setContext, force }) => {
@@ -255,11 +256,11 @@ const blueOnEvenRedInOdd = ({ context, prevContext, setContext, force }) => {
 export default blueOnEvenRedInOdd;
 ```
 
-This function receives the context, setContext, prevContext, force (boolean) and updates (exactly in the same way we did so far) the `color` based on changes in the `count`.
+This function receives the context, setContext, prevContext, force (boolean) and updates the `color` based on changes in the `count`.
 
-**Pay attention:** That you need to consider `force` in your equal operation since we run all the syncers at initial render with `force` as `true` where we send the context as the prevContext!
+**Please note:** You may need to consider `force` in your equal operation, since we run all the syncers during the initial render with `force` set to `true`.
 
-After that we define this syncer in our syncers list as so:
+After that we define this syncer in our syncers list:
 
 ```js
 import ReactFpContext from 'react-fp-context';
@@ -280,8 +281,12 @@ export default ReactFpContext({
 })(Counter);
 ```
 
-Not only we get synced state at each point of time in our `effects` but we also have only one render (with the two changes - `count` and `color`) thanks to React setState batching.
+Now we get synced state at each point of time in our `effects` and we also have just one render (even with the two changes - `count` and `color`) thanks to React.setState batching.
 
-Remember that you can mix `effects` and `derivedStateSyncers` at the same time whenever it fits more for the purpose as shown above!
+Remember that you can always mix `effects` and `derivedStateSyncers` at the same time whenever it fits your purpose.
 
-One of the derived states I enjoyed is related to using [`fiverr/passable`](https://github.com/fiverr/passable) package (You're invited to see this adorable validation package!) to validate my state. I used then the `initialPropsMapper` in order to scope my state below `mystate` and then all my updates where below this `mystate` namespace and in my dervied state syncer I was only checking if the reference of `mystate` has been broken (changed) and if so then execute the validations again with passing the state! I don't really care how and where it got changed since `lodash/fp` backing this library break the parent reference upper to the change so I can distungish changes in upper levels without going into the details!
+One of the derived states we like is related to using the [`fiverr/passable`](https://github.com/fiverr/passable) package (please check out this adorable validation package!) to validate our state. 
+
+We use the `initialPropsMapper` to scope our state below `mystate` which results in all our updates belonging to the `mystate` namespace. In our derived state syncer we then only need to know if the reference to `mystate` has been broken (changed) and if so then execute the validations again with passing the state.
+
+(We don't have to care where and how it got changed since `lodash/fp` breaks the upper parent reference to the change, so we can distinguish changes in upper levels without having to go into the details.)
