@@ -7,11 +7,6 @@ const Controls = () => {
 
     const onAddition = () => {
         setContext('count', (count) => count + 1);
-
-        // We can also do it as so:
-        // const { context, setContext } = React.useContext(CounterContext);
-        // const { count } = context;
-        // setContext('count', count + 1);
     };
 
     const onDecrement = () => {
