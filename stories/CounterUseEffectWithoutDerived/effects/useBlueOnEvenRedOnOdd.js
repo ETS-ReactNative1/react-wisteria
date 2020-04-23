@@ -11,7 +11,7 @@ const useBlueOnEvenRedOnOdd = ({ context, setContext }) => {
     //
     // But I want to console.log the unsynced state that we've at some point in effects.
     React.useEffect(() => {
-        console.log({ count, color });
+        console.log('unsynced state at some point in effects', { count, color });
         const newColor = count % 2 === 0 ? 'blue' : 'red';
 
         if (newColor === color) { return; }
