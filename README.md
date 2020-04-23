@@ -2,6 +2,10 @@
 
 **react-fp-context** is a library that wraps the React Context with a functional API that can make your life easier while getting/setting your state! only one way to get your state and one way to update it (no selectors/actions/reducers/types/connectors!)
 
+## Tiny Background
+
+The concept was kicked off when I was in one of the Hackathons in Fiverr (The company I work in) where we started (Me & Igor Burshtein) coding a React project and we had only two days to finish the things! Two days that prevents us from creating (actions - selectors - reducers - types - connectors) files all over the place! We needed a fast and quick state management library... And BTW we won in the hackathon!
+
 ## Installation
 
 ```js
