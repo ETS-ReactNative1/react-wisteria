@@ -38,7 +38,8 @@
     "lint": "eslint ."
   },
   "pre-commit": [
-    "lint"
+    "lint",
+    "build"
   ],
   "repository": {
     "type": "git",
