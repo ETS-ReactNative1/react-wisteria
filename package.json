@@ -34,7 +34,7 @@
   "scripts": {
     "start": "npm run storybook",
     "storybook": "start-storybook",
-    "build": "NODE_ENV=production parcel build src/index.js",
+    "build": "node_modules/.bin/webpack --config webpack.config.js",
     "lint": "eslint ."
   },
   "pre-commit": [
