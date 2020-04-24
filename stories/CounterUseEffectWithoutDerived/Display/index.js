@@ -6,8 +6,6 @@ const Display = () => {
     const { context } = React.useContext(CounterContext);
     const { count, color } = context;
 
-    console.log('rendered Display');
-
     return (
         <div className="display" style={{ color }}>
             {count}

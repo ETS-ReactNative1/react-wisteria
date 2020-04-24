@@ -17,30 +17,22 @@ const useStateManagement = (initialState, derivedStateSyncers) => {
     const [state, setState] = React.useState(initialState);
     const prevStateRef = React.useRef(state);
 
-    const setContext = React.useCallback((path, value, cb) => {
+    const setContext = React.useCallback((path, value) => {
+        console.log('setContext', { path, value });
         const updateFunction = isFunction(value) ? update : set;
 
         setState((state) => {
-            prevStateRef.current = state;
             const newState = updateFunction(path, value, state);
             return newState;
-        }, cb);
-
-        // Run the derivedStateSyncers in the next setState in order to get updated snapshot
-        // from the previous setState and to batch the derived states updates with one render.
-        setState((newState) => {
-            const prevState = prevStateRef.current;
-            derivedStateSyncers.forEach((d) => d({ context: newState, prevContext: prevState, setContext }));
-            return newState;
         });
-    }, [derivedStateSyncers]);
+    }, []);
 
-    // We want to call all the derivedStateSyncers on initial render.
-    if (initialRenderRef.current) {
-        derivedStateSyncers.forEach((d) => d({ context: state, prevContext: state, force: true, setContext }));
-    }
-
+    const isInitialRender = initialRenderRef.current;
     initialRenderRef.current = false;
+    const prevContext = prevStateRef.current;
+    prevStateRef.current = state;
+
+    derivedStateSyncers.forEach((d) => d({ context: state, prevContext, force: isInitialRender, setContext }));
 
     return [state, setContext];
 };
