@@ -11,10 +11,16 @@ const App = () => {
 
     return (
         <div className="App">
-            <h1>a: {context.a}</h1>
-            <h1>b: {context.b}</h1>
-            <h1>c: {context.c}</h1>
-            <h1>d: {context.d}</h1>
+            <h1>
+                Derived rules:<br/>
+                b = a + 1;<br/>
+                c = b + 1;<br/>
+                d = c + 1;<br/>
+            </h1>
+            <h2>a: {context.a}</h2>
+            <h2>b: {context.b}</h2>
+            <h2>c: {context.c}</h2>
+            <h2>d: {context.d}</h2>
             <Child/>
       </div>
       );

@@ -8,7 +8,7 @@ const Child = () => {
   
     return (
       <div onClick={() => setContext("a", a => a + 1)}>
-        CLICK HERE to see some magic happen
+        <b>CLICK HERE</b> to change only the (a) value
       </div>
     );
   };
