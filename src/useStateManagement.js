@@ -26,12 +26,15 @@ const useStateManagement = (initialState, derivedStateSyncers) => {
         });
     }, []);
 
-    const isInitialRender = initialRenderRef.current;
-    initialRenderRef.current = false;
-    const prevContext = prevStateRef.current;
-    prevStateRef.current = state;
+    derivedStateSyncers.forEach((d) => d({
+        context: state,
+        prevContext: prevStateRef.current,
+        force: initialRenderRef.current,
+        setContext
+    }));
 
-    derivedStateSyncers.forEach((d) => d({ context: state, prevContext, force: isInitialRender, setContext }));
+    prevStateRef.current = state;
+    initialRenderRef.current = false;
 
     return [state, setContext];
 };
