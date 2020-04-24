@@ -1,6 +1,6 @@
 {
   "name": "react-fp-context",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "description": "React Functional Context",
   "keywords": [
     "react",
@@ -10,6 +10,7 @@
     "management"
   ],
   "main": "dist/index.js",
+  "typings": "index.d.ts",
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.9.0",
