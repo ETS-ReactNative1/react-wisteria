@@ -244,11 +244,11 @@ We're rendering the component twice since the `count` was changed and the sync o
 How can we solve this situation? Since we're syncing states and we aren't using the Browser API (DOM Mutations or Async Operations), we have another option to pass for derivedState syncing called `derivedStateSyncers`. First we define a function:
 
 ```js
-const blueOnEvenRedInOdd = ({ context, prevContext, setContext, force }) => {
+const blueOnEvenRedInOdd = ({ context, prevContext, setContext }) => {
     const { count } = context;
     const { count: prevCount } = prevContext;
 
-    if (count === prevCount && !force) { return; }
+    if (count === prevCount) { return; }
 
     setContext('color', count % 2 === 0 ? 'blue' : 'red');
 };
@@ -256,9 +256,7 @@ const blueOnEvenRedInOdd = ({ context, prevContext, setContext, force }) => {
 export default blueOnEvenRedInOdd;
 ```
 
-This function receives the context, setContext, prevContext, force (boolean) and updates the `color` based on changes in the `count`.
-
-**Please note:** You may need to consider `force` in your equal operation, since we run all the syncers during the initial render with `force` set to `true`.
+This function receives the context, setContext, prevContext (empty object {} in initial render) and updates the `color` based on changes in the `count`.
 
 After that we define this syncer in our syncers list:
 

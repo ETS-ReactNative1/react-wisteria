@@ -1,8 +1,8 @@
-const derivedC = ({ context, prevContext, force, setContext }) => {
+const derivedC = ({ context, prevContext, setContext }) => {
     const { c } = context;
     const { c: prevC } = prevContext;
   
-    if (c === prevC && !force) {
+    if (c === prevC) {
       return;
     }
   
