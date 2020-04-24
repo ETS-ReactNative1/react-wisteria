@@ -13,9 +13,8 @@ import isFunction from 'lodash/fp/isFunction';
  * @returns getter/setter to the context
  */
 const useStateManagement = (initialState, derivedStateSyncers) => {
-    const initialRenderRef = React.useRef(true);
     const [state, setState] = React.useState(initialState);
-    const prevStateRef = React.useRef(state);
+    const [prevState, setPrevState] = React.useState({});
 
     const setContext = React.useCallback((path, value) => {
         const updateFunction = isFunction(value) ? update : set;
@@ -26,15 +25,14 @@ const useStateManagement = (initialState, derivedStateSyncers) => {
         });
     }, []);
 
-    derivedStateSyncers.forEach((d) => d({
-        context: state,
-        prevContext: prevStateRef.current,
-        force: initialRenderRef.current,
-        setContext
-    }));
-
-    prevStateRef.current = state;
-    initialRenderRef.current = false;
+    if (state !== prevState) {
+        derivedStateSyncers.forEach((d) => d({
+            context: state,
+            prevContext: prevState,
+            setContext
+        }));
+        setPrevState(state);
+    }
 
     return [state, setContext];
 };
