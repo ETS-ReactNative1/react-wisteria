@@ -18,7 +18,6 @@ const useStateManagement = (initialState, derivedStateSyncers) => {
     const prevStateRef = React.useRef(state);
 
     const setContext = React.useCallback((path, value) => {
-        console.log('setContext', { path, value });
         const updateFunction = isFunction(value) ? update : set;
 
         setState((state) => {
