@@ -1,3 +1,3 @@
 module.exports = {
-    stories: ['../stories/**/story.js']
+    stories: ['../stories/**/decorator.js', '../stories/**/story.js']
 };
