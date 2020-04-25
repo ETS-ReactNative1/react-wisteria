@@ -4,14 +4,20 @@ module.exports = {
       filename: 'index.js',
       libraryTarget: 'umd'
     },
-    externals : {
+    externals : [
+      'lodash/identity',
+      'lodash/fp/set',
+      'lodash/fp/update',
+      'lodash/fp/isFunction',
+      {
         react: {
             root: 'React',
             commonjs2: 'react',
             commonjs: 'react',
             amd: 'react'
         }
-    },
+      }
+    ],
     mode: 'production',
     module: {
       rules: [
