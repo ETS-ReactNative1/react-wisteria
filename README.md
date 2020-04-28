@@ -36,7 +36,7 @@ export default CounterContext;
 then we wrap our **Root component** (`<Counter/>`) like this:
 
 ```js
-import ReactFpContext from 'react-fp-context';
+import ReactFpContextProvider from 'react-fp-context';
 import CounterContext from './CounterContext';
 
 const Counter = () => {
@@ -118,7 +118,7 @@ Up until now, we can see that the Context we passed into the options of the libr
 But what if we need to map the Root props to a different state structure? Easy. We just pass another option (`initialPropsMapper`):
 
 ```js
-import ReactFpContext from 'react-fp-context';
+import ReactFpContextProvider from 'react-fp-context';
 import CounterContext from './CounterContext';
 
 const Counter = () => {
@@ -172,7 +172,7 @@ export default useRequestReportOnTen;
 First we define our hook - then we inject it into our options:
 
 ```js
-import ReactFpContext from 'react-fp-context';
+import ReactFpContextProvider from 'react-fp-context';
 import CounterContext from './CounterContext';
 
 const Counter = () => {
@@ -261,7 +261,7 @@ This function receives the context, setContext, prevContext (empty object {} in 
 After that we define this syncer in our syncers list:
 
 ```js
-import ReactFpContext from 'react-fp-context';
+import ReactFpContextProvider from 'react-fp-context';
 import CounterContext from './CounterContext';
 
 const Counter = () => {
