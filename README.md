@@ -15,7 +15,13 @@ npm i react-fp-context --save
 ```
 
 ## Options
-
+| **Option** | **Description** | **Default Value** |
+| --- | --- | --- |
+| **Context** | A React Context as the state container | *Required*
+| **initialPropsMapper?** | A mapper to map the Root Component props to a different state shape | *_.identity*
+| **effects?** | A list of effects | *[]*
+| **derivedStateSyncers?** | A list of derived state syncers | *[]*
+| **debug?** | Debug mode to trace state updates in the console | *false*
 
 ## Usage
 
