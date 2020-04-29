@@ -6,7 +6,7 @@ const derivedC = ({ context, prevContext, setContext }) => {
       return;
     }
   
-    setContext("d", c + 1);
+    setContext('d', c + 1);
   };
   
   export default derivedC;
