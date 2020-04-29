@@ -15,7 +15,13 @@ npm i react-fp-context --save
 ```
 
 ## Options
-
+| **Option** | **Description** | **Default Value** |
+| --- | --- | --- |
+| **Context** | A React Context as the state container | *Required*
+| **initialPropsMapper?** | A mapper to map the Root Component props to a different state shape | *_.identity*
+| **effects?** | A list of effects | *[]*
+| **derivedStateSyncers?** | A list of derived state syncers | *[]*
+| **debug?** | Debug mode to trace state updates in the console | *false*
 
 ## Usage
 
@@ -118,6 +124,8 @@ export default Controls;
 
 Up until now, we can see that the Context we passed into the options of the library has wrapped the values of the Root props and we can inspect the state by extracting `{ context }` and update it by extracting `{ setContext }`.
 
+## initialPropsMapper Option
+
 But what if we need to map the Root props to a different state structure? Easy. We just pass another option (`initialPropsMapper`):
 
 ```js
@@ -151,6 +159,8 @@ setContext('mystate.count', 5);
 // setContext('newValue', 5);
 // setContext('newValue.nested.path.value', 5);
 ```
+
+## effects Option
 
 There are two other major principles of `react-fp-context` - the handling of effects and derived states.
 
@@ -194,6 +204,8 @@ export default ReactFpContext({
 ```
 
 (react-fp-context will inject `({ context, setContext })` into all these `effects` arrays.)
+
+## derivedStateSyncers Option
 
 The next thing is the syncing of derived states. But why would you need derived state handling different from `effects` when you can simply use `effects` and be done with it?
 
@@ -285,6 +297,12 @@ export default ReactFpContext({
 Now we get synced state at each point of time in our `effects` and we also have just one render (even with the two changes - `count` and `color`) thanks to React.setState batching.
 
 Remember that you can always mix `effects` and `derivedStateSyncers` at the same time whenever it fits your purpose.
+
+## debug Option
+
+You can debug and trace your state updates by passing this option as `true`. Once you do you will see logs in the console that will make it easy to track the execution flow.
+
+![image](https://user-images.githubusercontent.com/7091543/80594046-f6143380-8a2a-11ea-86ea-222984922cd7.png)
 
 One of the derived states we like is related to using the [`fiverr/passable`](https://github.com/fiverr/passable) package (please check out this adorable validation package!) to validate our state. 
 
