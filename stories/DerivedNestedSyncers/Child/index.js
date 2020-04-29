@@ -7,7 +7,7 @@ const Child = () => {
     console.log({ context: JSON.stringify(context) });
   
     return (
-      <div onClick={() => setContext("a", a => a + 1)}>
+      <div onClick={() => setContext('a', a => a + 1)}>
         <b>CLICK HERE</b> to change only the (a) value
       </div>
     );
