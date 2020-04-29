@@ -14,6 +14,9 @@ The idea arose during a Hackathon in [Fiverr](https://github.com/fiverr) (the co
 npm i react-fp-context --save
 ```
 
+## Options
+
+
 ## Usage
 
 This library exposes only one thing: a ContextProvider-like HOC that can be passed configurations & the Root component we have in our app.
