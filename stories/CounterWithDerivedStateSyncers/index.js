@@ -18,5 +18,6 @@ const Counter = () => {
 
 export default ReactFpContext({
     Context: CounterContext,
-    derivedStateSyncers: [blueOnEvenRedInOdd]
+    derivedStateSyncers: [blueOnEvenRedInOdd],
+    debug: true
 })(Counter);
