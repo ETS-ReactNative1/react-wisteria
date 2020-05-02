@@ -57,7 +57,7 @@ const Counter = () => {
     );
 };
 
-export default ReactFpContext({
+export default ReactFpContextProvider({
     Context: CounterContext
 })(Counter);
 ```
@@ -141,7 +141,7 @@ const Counter = () => {
     );
 };
 
-export default ReactFpContext({
+export default ReactFpContextProvider({
     Context: CounterContext,
     initialPropsMapper: ({ count }) => ({ mystate: { count }})
 })(Counter);
@@ -197,7 +197,7 @@ const Counter = () => {
     );
 };
 
-export default ReactFpContext({
+export default ReactFpContextProvider({
     Context: CounterContext,
     effects: [useRequestReportOnTen]
 })(Counter);
@@ -288,7 +288,7 @@ const Counter = () => {
     );
 };
 
-export default ReactFpContext({
+export default ReactFpContextProvider({
     Context: CounterContext,
     derivedStateSyncers: [blueOnEvenRedInOdd]
 })(Counter);
