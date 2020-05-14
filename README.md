@@ -29,7 +29,7 @@ React Context and useContext is often used to avoid prop drilling, however it's 
 
 React team have talked about introducing something called [Context Selectors](https://github.com/reactjs/rfcs/pull/119) to solve this issue where component only re-render if and only if the selector returns a different value of that slice. Unfortunately, this is something that will need a refactor in React infrastructure and a multi-month project.
 
-Once the Context Selector proposal land we'll add Hooks as another way to get/update the state as a replacement for our `connect`.
+Once the Context Selector proposal land we'll add Hooks as another way to get/update the state as well as keeping the `connect` for backward compatibility.
 
 ## Usage
 
