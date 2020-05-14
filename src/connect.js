@@ -1,6 +1,5 @@
 import React from 'react';
 import { TreeContext } from './ContextProvider';
-// import buildProps from './buildProps';
 import isPropsIdentical from './isPropsIdentical';
 
 const connect = (useStateToProps) => (Component) => (ownProps) => {
