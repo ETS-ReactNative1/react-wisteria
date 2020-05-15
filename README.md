@@ -82,15 +82,11 @@ export const CounterAt_0 = () => {
 
 The `<Display/>` component, which is a child of Root, can now reach the state easily.
 
-**Please note:** This is the ONLY way to read state using react-fp-context.
-
 ```js
+import { connect } from 'react-fp-context';
 import CounterContext from './CounterContext';
 
-const Display = () => {
-    const { context } = React.useContext(CounterContext);
-    const { count } = context;
-
+const Display = ({ count }) => {
     return (
         <div className="display">
             {count}
@@ -98,25 +94,20 @@ const Display = () => {
     )
 };
 
-export default Display;
+const useStateToProps = ({ context }) => ({
+    count: context.count
+});
+
+export default connect(useStateToProps)(Display);
 ```
 
 In our second child, `<Controls/>`, we want to update the state:
 
 ```js
+import { connect } from 'react-fp-context';
 import CounterContext from './CounterContext';
 
-const Controls = () => {
-    const { setContext } = React.useContext(CounterContext);
-
-    const onAddition = () => {
-        setContext('count', (count) => count + 1);
-    };
-
-    const onDecrement = () => {
-        setContext('count', (count) => count - 1);
-    };
-
+const Controls = ({ onAddition, onDecrement }) => {
     return (
         <div className="controls">
             <div className="control" onClick={onAddition}>+</div>
@@ -125,10 +116,40 @@ const Controls = () => {
     )
 };
 
-export default Controls;
+const useStateToProps = ({ context, setContext }) => {
+    const { count } = context;
+
+    // NOTE: All the inline functions MUST be wrapped with React.useCallback,
+    // so we can take the benefit of `useMemo` that we use in order to not re-render unnecessary components.
+    // without this, inline function will get reference on each render and our `connect` can't do the performance optimization
+    const onAddition = React.useCallback(() => {
+        setContext('count', count + 1);
+    }, [setContext, count]);
+
+    const onDecrement = React.useCallback(() => {
+        setContext('count', count + 1);
+    }, [setContext, count]);
+
+    return {
+        onAddition,
+        onDecrement
+    };
+}
+
+export default connect(useStateToProps)(Controls);
 ```
 
-**Please note:** Multiple `setContext` calls will be batched based on React.setState batching whilst having only one render phase.
+**Please note:** Multiple `setContext` calls will be batched based on React.setState batching whilst having only one render phase. Also, `setContext` is using the `lodash/fp#set` and `lodash/fp#update` methods under the hood which means that you can update nested paths and arrays easily.
+
+```js
+    // create complex path that do not exist.
+    setContext('new.path.that.not.exist', 5);
+    // { new: { path: { that: { not: { exist: 5 } } } } }
+
+    // add new member to nested members array.
+    setContext('add.member.to.members', (members) => members.concat({ name: 'test' }));
+    // { add: { member: { to: { members: [{ name: 'myself' }, { name: 'test' }] } } } }
+```
 
 Up until now, we can see that the Context we passed into the options of the library has wrapped the values of the Root props and we can inspect the state by extracting `{ context }` and update it by extracting `{ setContext }`.
 
@@ -157,16 +178,6 @@ export default ReactFpContextProvider({
 ```
 
 If you console log your Context, you'll see that it now received the new shape.
-
-Updating nested paths is also easy seeing that `react-fp-context` is using `lodash/fp` API under the hood:
-
-```js
-setContext('mystate.count', 5);
-
-// you can also create new paths that doesn't exist into your state exactly as we do it in lodash/fp:
-// setContext('newValue', 5);
-// setContext('newValue.nested.path.value', 5);
-```
 
 (We can even compare objects by referental equality (===) in`lodash/fp` since updates break the reference in the changed object upto the upper parent reference, so we can distinguish changes in each level without having to do expensive diffing.)
 
@@ -313,49 +324,3 @@ Remember that you can always mix `effects` and `derivedStateSyncers` at the same
 You can debug and trace your state updates by passing this option as `true`. Once you do you will see logs in the console that will make it easy to track the execution flow.
 
 ![image](https://user-images.githubusercontent.com/7091543/80594046-f6143380-8a2a-11ea-86ea-222984922cd7.png)
-
-## connect Usage
-In the `connect` way, all what we did in the Provider stays the same (including all the options), what is different in the `connect` way is that we do not consume context by using `useContext` directly but by using a redux-like way.
-
-```js
-import { connect } from 'react-fp-context';
-
-const Controls = ({ useAddition, useDecrement, useConsoleLog }) => {
-    return (
-        <>
-            <div className="controls">
-                <div className="control" onClick={useAddition}>+</div>
-                <div className="control" onClick={useDecrement}>-</div>
-            </div>
-            <h4 onClick={useConsoleLog}>Alert other state value</h4>
-        </>
-    )
-};
-
-// Unlike react-redux connect: useStateToProps here supply the data and the functions.
-// So we don't have the concept of mapDispatchToProps, but functions MUST be wrapped with React.useCallback.
-const useStateToProps = ({ context, setContext }) => {
-
-    const onAddition = React.useCallback(() => {
-        setContext('count', (count) => count + 1)
-    }, [setContext]);
-
-    const onDecrement = React.useCallback(() => {
-        setContext('count', (count) => count - 1)
-    }, [setContext]);
-
-    const onConsole = React.useCallback(() => {
-        alert(context.countx);
-    }, [context.countx]);
-
-    return {
-        onAddition,
-        onDecrement,
-        onConsole
-    }
-};
-
-export default connect(useStateToProps)(Controls);
-```
-
-Pay attention that all the inline functions should be wrapped with `React.useCallback` so we can take the benefit of `useMemo` that we use in order to not re-render unnecessary components, without this inline function will get reference on each render and our `connect` can't do the performance optimization.
