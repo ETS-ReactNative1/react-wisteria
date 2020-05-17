@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactFpContext from '../../src';
+import ReactWisteriaProvider from '../../src';
 import NestedRelationContext from './context';
 import Child from './Child';
 import derivedA from './syncers/a';
@@ -26,7 +26,7 @@ const App = () => {
       );
 };
 
-export default ReactFpContext({
+export default ReactWisteriaProvider({
     Context: NestedRelationContext,
     derivedStateSyncers: [derivedA, derivedB, derivedC]
 })(App);

@@ -111,7 +111,7 @@ it('should execute effects when get passed on each update', () => {
 });
 
 describe('debug mode', () => {
-    const args = ['%c react-fp-context::setContext Path "count"', 'color:#1dbf73'];
+    const args = ['%c react-wisteria::setContext Path "count"', 'color:#1dbf73'];
 
     it('should not console when debug mode is OFF', () => {
         const Spec = App({ Context, debug: false });

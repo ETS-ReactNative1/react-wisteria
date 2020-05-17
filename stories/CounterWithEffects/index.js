@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactFpContext from '../../src';
+import ReactWisteriaProvider from '../../src';
 import CounterContext from './context';
 import Display from './Display';
 import Controls from './Controls';
@@ -16,7 +16,7 @@ const Counter = () => {
     );
 };
 
-export default ReactFpContext({
+export default ReactWisteriaProvider({
     Context: CounterContext,
     effects: [useRequestReportOnTen]
 })(Counter);

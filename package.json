@@ -1,6 +1,6 @@
 {
-  "name": "react-fp-context",
-  "version": "8.1.3",
+  "name": "react-wisteria",
+  "version": "1.0.0",
   "description": "React Functional Context",
   "keywords": [
     "react",
@@ -53,14 +53,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:Attrash-Islam/react-fp-context.git"
+    "url": "git@github.com:Attrash-Islam/react-wisteria.git"
   },
   "author": "Islam Attrash <isattrash@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Attrash-Islam/react-fp-context/issues"
+    "url": "https://github.com/Attrash-Islam/react-wisteria/issues"
   },
-  "homepage": "https://github.com/Attrash-Islam/react-fp-context",
+  "homepage": "https://github.com/Attrash-Islam/react-wisteria",
   "browserslist": [
     ">0.2%",
     "not dead",

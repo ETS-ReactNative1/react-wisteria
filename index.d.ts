@@ -1,8 +1,8 @@
-declare module 'react-fp-context' {
+declare module 'react-wisteria' {
 
-    const ReactFpContext: ReactFpContextAPI;
+    const reactWisteria: ReactWisteriaAPI;
 
-    export default ReactFpContext;
+    export default reactWisteria;
 
     type IProviderResponse = (component: React.Component) => React.Component;
 
@@ -23,7 +23,7 @@ declare module 'react-fp-context' {
         effects?: []
     }
 
-    interface ReactFpContextAPI {
+    interface ReactWisteriaAPI {
         (options: IOptions): IProviderResponse
     }
 }

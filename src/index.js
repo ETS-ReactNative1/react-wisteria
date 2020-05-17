@@ -1,5 +1,5 @@
-import ReactFpContext from './ContextProvider';
+import ReactWisteriaProvider from './ContextProvider';
 import connect from './connect';
 
-export default ReactFpContext;
+export default ReactWisteriaProvider;
 export { connect };

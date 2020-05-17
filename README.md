@@ -1,6 +1,6 @@
 # React FP Context
 
-**react-fp-context** is a library that wraps the [React Context](https://reactjs.org/docs/context.html) with a functional API ([lodash/fp](https://gist.github.com/jfmengels/6b973b69c491375117dc) API) that makes it easier to work with state. It provides you with a single way to get your state and a single way to update it without the need for selectors, actions, reducers, types, connectors, etc.
+**react-wisteria** is a library that wraps the [React Context](https://reactjs.org/docs/context.html) with a functional API ([lodash/fp](https://gist.github.com/jfmengels/6b973b69c491375117dc) API) that makes it easier to work with state. It provides you with a single way to get your state and a single way to update it without the need for selectors, actions, reducers, types, connectors, etc.
 
 ## Background
 
@@ -11,7 +11,7 @@ The idea arose during a Hackathon in [Fiverr](https://github.com/fiverr) (the co
 ## Installation
 
 ```js
-npm i react-fp-context --save
+npm i react-wisteria --save
 ```
 
 ## Options
@@ -53,7 +53,7 @@ export default CounterContext;
 then we wrap our **Root component** (`<Counter/>`) like this:
 
 ```js
-import ReactFpContextProvider from 'react-fp-context';
+import ReactWisteriaProvider from 'react-wisteria';
 import CounterContext from './CounterContext';
 
 const Counter = () => {
@@ -65,12 +65,12 @@ const Counter = () => {
     );
 };
 
-export default ReactFpContextProvider({
+export default ReactWisteriaProvider({
     Context: CounterContext
 })(Counter);
 ```
 
-As you can see, the context is being sent to ReactFpContext as part of its options.
+As you can see, the context is being sent to ReactWisteriaProvider as part of its options.
 
 Let us now render our Root component with its initial props (only the current counter value):
 
@@ -83,7 +83,7 @@ export const CounterAt_0 = () => {
 The `<Display/>` component, which is a child of Root, can now reach the state easily.
 
 ```js
-import { connect } from 'react-fp-context';
+import { connect } from 'react-wisteria';
 import CounterContext from './CounterContext';
 
 const Display = ({ count }) => {
@@ -104,7 +104,7 @@ export default connect(useStateToProps)(Display);
 In our second child, `<Controls/>`, we want to update the state:
 
 ```js
-import { connect } from 'react-fp-context';
+import { connect } from 'react-wisteria';
 import CounterContext from './CounterContext';
 
 const Controls = ({ onAddition, onDecrement }) => {
@@ -158,7 +158,7 @@ Up until now, we can see that the Context we passed into the options of the libr
 But what if we need to map the Root props to a different state structure? Easy. We just pass another option (`initialPropsMapper`):
 
 ```js
-import ReactFpContextProvider from 'react-fp-context';
+import ReactWisteriaProvider from 'react-wisteria';
 import CounterContext from './CounterContext';
 
 const Counter = () => {
@@ -170,7 +170,7 @@ const Counter = () => {
     );
 };
 
-export default ReactFpContextProvider({
+export default ReactWisteriaProvider({
     Context: CounterContext,
     initialPropsMapper: ({ count }) => ({ mystate: { count }})
 })(Counter);
@@ -183,7 +183,7 @@ If you console log your Context, you'll see that it now received the new shape.
 
 ## effects Option
 
-There are two other major principles of `react-fp-context` - the handling of effects and derived states.
+There are two other major principles of `react-wisteria` - the handling of effects and derived states.
 
 Let's say that we have an effect that pops an alert message (or triggers a service request) if a specific condition is met (e.g. once the counter hits 10). In order to do this, we need access to `context` and `setContext` in our `effects` which allows us to inspect and respond with updates:
 
@@ -206,7 +206,7 @@ export default useRequestReportOnTen;
 First we define our hook - then we inject it into our options:
 
 ```js
-import ReactFpContextProvider from 'react-fp-context';
+import ReactWisteriaProvider from 'react-wisteria';
 import CounterContext from './CounterContext';
 
 const Counter = () => {
@@ -218,13 +218,13 @@ const Counter = () => {
     );
 };
 
-export default ReactFpContextProvider({
+export default ReactWisteriaProvider({
     Context: CounterContext,
     effects: [useRequestReportOnTen]
 })(Counter);
 ```
 
-(react-fp-context will inject `({ context, setContext })` into all these `effects` arrays.)
+(react-wisteria will inject `({ context, setContext })` into all these `effects` arrays.)
 
 ## derivedStateSyncers Option
 
@@ -297,7 +297,7 @@ This function receives the context, setContext, prevContext (empty object {} in 
 After that we define this syncer in our syncers list:
 
 ```js
-import ReactFpContextProvider from 'react-fp-context';
+import ReactWisteriaProvider from 'react-wisteria';
 import CounterContext from './CounterContext';
 
 const Counter = () => {
@@ -309,7 +309,7 @@ const Counter = () => {
     );
 };
 
-export default ReactFpContextProvider({
+export default ReactWisteriaProvider({
     Context: CounterContext,
     derivedStateSyncers: [blueOnEvenRedInOdd]
 })(Counter);
