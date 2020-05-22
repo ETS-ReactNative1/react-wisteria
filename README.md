@@ -1,6 +1,6 @@
 # React Wisteria
 
-**react-wisteria** is a library that wraps the [React Context](https://reactjs.org/docs/context.html) with a functional API ([lodash/fp](https://gist.github.com/jfmengels/6b973b69c491375117dc) API) that makes it easier to work with state. It provides you with a single way to get your state and a single way to update it without the need for selectors, actions, reducers, types, connectors, etc.
+**react-wisteria** is a library that wraps the [React Context](https://reactjs.org/docs/context.html) with a functional API ([lodash/fp](https://gist.github.com/jfmengels/6b973b69c491375117dc) API) that makes it easier to work with state. It provides you with a single way to get your state and a single way to update it without the need for selectors, actions, reducers, types, etc.
 
 ## Background
 
