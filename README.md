@@ -91,7 +91,6 @@ The `<Display/>` component, which is a child of Root, can now reach the state ea
 
 ```js
 import { connect } from 'react-wisteria';
-import CounterContext from './CounterContext';
 
 const Display = ({ count }) => {
     return (
@@ -112,7 +111,6 @@ In our second child, `<Controls/>`, we want to update the state:
 
 ```js
 import { connect } from 'react-wisteria';
-import CounterContext from './CounterContext';
 
 const Controls = ({ onAddition, onDecrement }) => {
     return (
