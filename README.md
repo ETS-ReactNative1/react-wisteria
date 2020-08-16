@@ -1,6 +1,6 @@
 # React Wisteria
 
-**react-wisteria** is a library that wraps the [React Context](https://reactjs.org/docs/context.html) with a [Golden Path](https://github.com/Attrash-Islam/golden-path) Functional setter API that makes it easier to work with state. Get your state and update it without the need for selectors, actions, reducers, types, etc.
+**react-wisteria** is a library that wraps the [React Context](https://reactjs.org/docs/context.html) with the [Golden Path](https://github.com/Attrash-Islam/golden-path) Functional setter API that makes it easier to work with state. Get your state and update it without the need for selectors, actions, reducers, types, etc.
 
 ## Background
 
