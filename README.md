@@ -146,20 +146,29 @@ export default connect(useStateToProps)(Controls);
 
 **Please note:** Multiple `setContext` calls will be batched based on React.setState batching whilst having only one render phase. Also, `setContext` is using [golden-path](https://github.com/Attrash-Islam/golden-path) syntax under the hood which means that you can update nested paths and arrays easily.
 
+It's also important to rememeber to wrap dynamic data in the v function from golden-path.
+
 ```js
-    // create complex path that do not exist.
-    setContext('new.path.that.not.exist', 5);
-    // { new: { path: { that: { not: { exist: 5 } } } } }
+import { v } from 'golden-path';
 
-    // Update array item at indexes 0 and 1.
-    setContext('array.with.nested.path.0', 1);
-    setContext('array.with.nested.path.1', 2);
+setContext('name', 'newName');
+setContext(`peoples.0.id`, 12);
+setContext(`peoples[id=1].name`, 'person name with id=1');
+setContext(`peoples[name="Alex"]`, { name: 'Alex2' });
 
-    setContext('friends[id=2].name', 'newName');
+// For dynamic data it's recommended to wrap with v() in order to not break the parser.
+// Same are relevant to decimal point as well (e.g. 2.2)
+const nameFromServer = '[]&4%45.';
+setContext(`peoples[name="${v(nameFromServer)}"].age`, 20);
 
-    // add new member to nested members array.
-    setContext('add.member.to.members', (members) => members.concat({ name: 'test' }));
-    // { add: { member: { to: { members: [{ name: 'myself' }, { name: 'test' }] } } } }
+// Greedy path to update all males
+setContext(`peoples*[sex="male"].isMale`, true);
+
+// Multiple condition - Not greedy (first match)
+setContext(`peoples[id=1][age>=20]`, {});
+
+// Multiple condition - Greedy (All matches)
+setContext(`peoples*[id=1][age>=20].kind`, true);
 ```
 
 Up until now, we can see that the Context we passed into the options of the library has wrapped the values of the Root props and we can inspect the state by extracting `{ context }` and update it by extracting `{ setContext }`.
