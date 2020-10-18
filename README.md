@@ -2,7 +2,7 @@
 
 ---
 
-This is the documentation for ReactWistera for React16
+This is the documentation when using React16
 
 ---
 
