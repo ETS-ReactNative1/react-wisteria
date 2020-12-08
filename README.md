@@ -30,6 +30,7 @@ npm i react-wisteria@4.1.4 --save
 ## Options
 | **Option** | **Description** | **Default Value** |
 | --- | --- | --- |
+| **name** | A name to be shown in "React Context Devtools" | *''*
 | **Context** | A React Context as the state container | *Required*
 | **initialPropsMapper?** | A mapper to map the Root Component props to a different state shape | *_.identity*
 | **effects?** | A list of effects | *[]*
