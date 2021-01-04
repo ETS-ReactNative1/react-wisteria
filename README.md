@@ -24,7 +24,7 @@ Wisteria is a genus of flowering plants in the legume family, Fabaceae, that inc
 ## Installation
 
 ```js
-npm i react-wisteria@4.1.4 --save
+npm i react-wisteria@4.1.5 --save
 ```
 
 ## Options
