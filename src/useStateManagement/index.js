@@ -21,13 +21,19 @@ const useStateManagement = (initialState, derivedStateSyncers, debug) => {
 
         setState((state) => {
             const newState = updater(path, value, state);
-            const stateAfterDerived = computeDerivedStates({ prevState: state, state: newState, derivedStateSyncers, debug });
+            const syncerStatus = {};
+            syncerStatus.done = false;
+            const stateAfterDerived = computeDerivedStates({ prevState: state, state: newState, derivedStateSyncers, debug, syncerStatus });
+            syncerStatus.done = true;
             return stateAfterDerived;
         });
     }, [derivedStateSyncers, debug]);
 
     if (initState) {
-        const stateAfterDerived = computeDerivedStates({ prevState: {}, state, derivedStateSyncers, debug });
+        const syncerStatus = {};
+        syncerStatus.done = false;
+        const stateAfterDerived = computeDerivedStates({ prevState: {}, state, derivedStateSyncers, debug, syncerStatus });
+        syncerStatus.done = true;
         setState(stateAfterDerived);
         setInitState(false);
     }

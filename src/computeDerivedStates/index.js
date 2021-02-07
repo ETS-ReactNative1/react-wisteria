@@ -6,12 +6,17 @@ const MAX_INFINITE_CYCLES_COUNT = 100;
 export const INFINITE_SET_CONTEXT_IN_SYNCER_ERROR_MSG = `One of your derivedStateSyncers is infinitely calling setContext. Reached Max limit: ${MAX_INFINITE_CYCLES_COUNT}.
 Pass the "debug" option to the Provider in order to see the state updates.`;
 
-const computeDerivedStates = ({ prevState, state, derivedStateSyncers, debug }) => {
+const computeDerivedStates = ({ prevState, state, derivedStateSyncers, debug, syncerStatus }) => {
     let lastCurrentState = state;
     let lastPrevState = prevState;
     let updates = [];
 
-    const _setContext = (path, value) => {
+    const _setContext = (syncer) => (path, value) => {
+        if (syncerStatus.done) {
+            console.error(`derived state syncer: "${syncer.name}" should be synchronous. Got asynchronous update for path: "${path}" with the value: ${value}`);
+            return;
+        }
+
         if (debug) {
             traceUpdates({ path, value });
         }
@@ -33,7 +38,7 @@ const computeDerivedStates = ({ prevState, state, derivedStateSyncers, debug }) 
         derivedStateSyncers.forEach((d) => d({
             context: lastCurrentState,
             prevContext: lastPrevState,
-            setContext: _setContext
+            setContext: _setContext(d)
         }));
 
         let stateBeforeUpdates = lastCurrentState;

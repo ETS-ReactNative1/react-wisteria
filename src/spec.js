@@ -141,6 +141,27 @@ it('should throw error if derivedStateSyncers is calling setContext infinitely',
     }).toThrow(INFINITE_SET_CONTEXT_IN_SYNCER_ERROR_MSG);
 });
 
+it('should console error if derivedStateSyncers is asynchronous', (done) => {
+    const asyncSyncer = ({ context, prevContext, setContext }) => {
+        if (context.count === prevContext.count) { return; }
+
+        const color  = context.count % 2 === 0 ? 'blue' : 'red';
+
+        setTimeout(() => {
+            console.log('async');
+            setContext('color', color);
+        });
+    };
+
+    const Spec = App({ Context, derivedStateSyncers: [asyncSyncer] });
+    mount(<Spec count={0}/>);
+
+    setTimeout(() => {
+        expect(console.error).toHaveBeenCalledWith('derived state syncer: "asyncSyncer" should be synchronous. Got asynchronous update for path: "color" with the value: blue');
+        done();
+    }, 100);
+});
+
 it('should execute effects when get passed on each update', () => {
     const fun = jest.fn();
 
