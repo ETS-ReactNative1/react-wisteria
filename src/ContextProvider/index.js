@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import useStateManagement from '../useStateManagement';
 
 export const TreeContext = React.createContext();
@@ -16,16 +16,15 @@ const ContextProvider = ({
     effects.forEach((effect) => effect({ context, setContext }));
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const warnedAboutMissingDevToolRef = useRef();
+    useEffect(() => {
+        console.log('%cRun window.ReactWisteriaStores in order to inspect the Wisteria state', 'color:#1dbf73');
+    }, []);
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
-        if (typeof window !== 'undefined' && window._REACT_CONTEXT_DEVTOOL) {
-            window._REACT_CONTEXT_DEVTOOL({ id: name, displayName: name, values: context });
-        } else if (!warnedAboutMissingDevToolRef.current) {
-            warnedAboutMissingDevToolRef.current = true;
-            console.log('%cConsider installing "React Context DevTool" in order to inspect the Wisteria state', 'color:#1dbf73');
-        }
+        window.ReactWisteriaStores = window.ReactWisteriaStores || {};
+        window.ReactWisteriaStores[name] = context;
+        console.log('%cConsider installing "React Context DevTool" in order to inspect the Wisteria state', 'color:#1dbf73');
     }, [context]);
 
     return (
