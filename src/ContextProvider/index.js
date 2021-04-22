@@ -17,7 +17,7 @@ const ContextProvider = ({
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
-        console.log('%cRun window.ReactWisteriaStores in order to inspect the Wisteria state', 'color:#1dbf73');
+        console.log('%cRun window.ReactWisteriaStores in order to inspect the React Wisteria state', 'color:#1dbf73');
     }, []);
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
