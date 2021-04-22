@@ -24,7 +24,6 @@ const ContextProvider = ({
     useEffect(() => {
         window.ReactWisteriaStores = window.ReactWisteriaStores || {};
         window.ReactWisteriaStores[name] = context;
-        console.log('%cConsider installing "React Context DevTool" in order to inspect the Wisteria state', 'color:#1dbf73');
     }, [context]);
 
     return (
