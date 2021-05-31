@@ -9,16 +9,10 @@ const ContextProvider = ({
     initialPropsMapper = (x) => x,
     derivedStateSyncers = [],
     effects = [],
-    debug = false
 }) => (Component) => (props) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [context, setContext] = useStateManagement(initialPropsMapper(props), derivedStateSyncers, debug);
+    const [context, setContext] = useStateManagement(initialPropsMapper(props), derivedStateSyncers, name);
     effects.forEach((effect) => effect({ context, setContext }));
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-        console.log('%cRun window.ReactWisteriaStores in order to inspect the React Wisteria state', 'color:#1dbf73');
-    }, []);
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
