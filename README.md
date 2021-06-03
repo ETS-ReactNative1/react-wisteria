@@ -1,11 +1,5 @@
 # React Wisteria
 
----
-
-This is the documentation when using React16
-
----
-
 **react-wisteria** is a library that wraps the [React Context](https://reactjs.org/docs/context.html) with the [Golden Path](https://github.com/Attrash-Islam/golden-path) Functional setter API that makes it easier to work with state. Get your state and update it without the need for selectors, actions, reducers, types, etc.
 
 ## Background
@@ -351,7 +345,7 @@ Remember that you can always mix `effects` and `derivedStateSyncers` at the same
 
 ## debug Option
 
-You can debug and trace your state updates by adding to the url the `debugWisteria` query param, or in Storybook by using the decorator (`import withDebugMode from 'react-wisteria/storybook';`).
+You can debug and trace your state updates by adding to the url the `debugWisteria` query param, or by setting `window.isWisteriaDebugModeForced` to `true`.
 
 ![image](https://user-images.githubusercontent.com/7091543/80594046-f6143380-8a2a-11ea-86ea-222984922cd7.png)
 
