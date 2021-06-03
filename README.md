@@ -343,7 +343,7 @@ Now we get synced state at each point of time in our `effects` and we also have 
 
 Remember that you can always mix `effects` and `derivedStateSyncers` at the same time whenever it fits your purpose.
 
-## debug Option
+## debugging
 
 You can debug and trace your state updates by adding to the url the `debugWisteria` query param, or by setting `window.isWisteriaDebugModeForced` to `true`.
 
