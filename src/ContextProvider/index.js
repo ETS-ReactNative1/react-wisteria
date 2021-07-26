@@ -1,4 +1,5 @@
-import React, { useEffect, memo } from 'react';
+import React, { useEffect, memo, useRef } from 'react';
+import shallowEqual from 'shallowequal';
 import useStateManagement from '../useStateManagement';
 
 export const TreeContext = React.createContext();
@@ -12,6 +13,9 @@ const ContextProvider = ({
 }) => (Component) => memo((props) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [context, setContext] = useStateManagement(initialPropsMapper(props), derivedStateSyncers, name);
+    const prevStateRef = useRef({});
+    const prevPropsRef = useRef({});
+    const elementsCacheRef = useRef();
     effects.forEach((effect) => effect({ context, setContext }));
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -20,13 +24,22 @@ const ContextProvider = ({
         window.ReactWisteriaStores[name] = context;
     }, [context]);
 
-    return (
-        <TreeContext.Provider value={Context}>
-            <Context.Provider value={{ context, setContext }}>
-                <Component {...props}/>
-            </Context.Provider>
-        </TreeContext.Provider>
-    );
+    if (
+        !shallowEqual(prevStateRef.current, { context, setContext }) ||
+        !shallowEqual(prevPropsRef.current, props)
+    ) {
+        prevStateRef.current = { context, setContext };
+        prevPropsRef.current = props;
+        elementsCacheRef.current = (
+            <TreeContext.Provider value={Context}>
+                <Context.Provider value={{ context, setContext }}>
+                    <Component {...props}/>
+                </Context.Provider>
+            </TreeContext.Provider>
+        );
+    }
+
+    return elementsCacheRef.current;
 });
 
 export default ContextProvider;

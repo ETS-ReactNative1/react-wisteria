@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { act } from 'react-dom/test-utils';
 import { mount } from 'enzyme';
 import { configure } from 'enzyme';
@@ -215,4 +215,67 @@ it('should throw error when using connect without Provider', () => {
     expect(() => {
         mount(<ConnectedContextInspector count={0}/>);
     }).toThrow(CONNECT_WITHOUT_PROVIDER_ERROR_MSG);
+});
+
+it('should not call effects when parent update (memoized wisteria provider)', () => {
+    const effect = jest.fn();
+    const Spec = App({ Context, effects: [effect] });
+
+    const Parent = () => {
+        const [count, setCount] = useState(0);
+
+        return (
+            <div>
+                <Spec count={1} name="islam"/>
+                <button type="button" onClick={() => setCount((x) => x + 1)}>
+                    Update Parent State. {count}
+                </button>
+            </div>
+        );
+    };
+
+    const wrapper = mount(<Parent/>);
+    effect.mockClear();
+
+    act(() => {
+        wrapper.find('button').simulate('click');
+        wrapper.update();
+    });
+    expect(effect).not.toHaveBeenCalled();
+});
+
+// This can happen when our effects is consuming a high rate updating context from some parent.
+it('should not call connectors when wisteria context did not changed when upper update happens', () => {
+    const ParentContext = createContext();
+
+    const useEffect = () => {
+        useContext(ParentContext);
+    };
+
+    const NullishChild = () => null;
+    const useStateToPropsMock = jest.fn().mockReturnValue({});
+    const ConnectedInspector = connect(useStateToPropsMock)(NullishChild);
+    const Spec = Provider({ Context, effects: [useEffect] })(ConnectedInspector);
+
+    const Parent = () => {
+        const [count, setCount] = useState(0);
+
+        return (
+            <ParentContext.Provider value={count}>
+                <Spec count={1} name="islam"/>
+                <button type="button" onClick={() => setCount((x) => x + 1)}>
+                    Update Parent State. {count}
+                </button>
+            </ParentContext.Provider>
+        );
+    };
+
+    const wrapper = mount(<Parent/>);
+    useStateToPropsMock.mockClear();
+
+    act(() => {
+        wrapper.find('button').simulate('click');
+        wrapper.update();
+    });
+    expect(useStateToPropsMock).not.toHaveBeenCalled();
 });

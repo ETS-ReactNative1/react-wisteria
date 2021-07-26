@@ -1,6 +1,6 @@
 import React from 'react';
+import shallowEqual from 'shallowequal';
 import { TreeContext } from '../ContextProvider';
-import isPropsIdentical from '../isPropsIdentical';
 
 export const CONNECT_WITHOUT_PROVIDER_ERROR_MSG = 'Are you trying to use ReactWisteria\'s connect() without a Provider?';
 
@@ -20,7 +20,7 @@ const connect = (useStateToProps) => (Component) => (ownProps) => {
 
     // Check if the props is not identical to the memomized props in order to force update
     // and to update the memo to recent props.
-    if (!isPropsIdentical(props, memo.current.props)) {
+    if (!shallowEqual(props, memo.current.props)) {
         memo.current.props = props;
         memo.current.forceUpdate++;
     }
