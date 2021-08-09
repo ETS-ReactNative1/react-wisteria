@@ -1,5 +1,5 @@
-import React from 'react';
+import { createContext } from 'react';
 
-const NestedRelationContext = React.createContext();
+const NestedRelationContext = createContext();
 
 export default NestedRelationContext;

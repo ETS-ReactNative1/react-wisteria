@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Provider } from '../../src';
 import NestedRelationContext from './context';
 import Child from './Child';
@@ -7,7 +7,7 @@ import derivedB from './syncers/b';
 import derivedC from './syncers/c';
 
 const App = () => {
-    const { context } = React.useContext(NestedRelationContext);
+    const { context } = useContext(NestedRelationContext);
 
     return (
         <div className="App">
@@ -28,5 +28,5 @@ const App = () => {
 
 export default Provider({
     Context: NestedRelationContext,
-    derivedStateSyncers: [derivedA, derivedB, derivedC]
+    hooks: [derivedA, derivedB, derivedC]
 })(App);

@@ -3,7 +3,7 @@ import { Provider } from '../../src';
 import CounterContext from './context';
 import Display from './Display';
 import Controls from './Controls';
-import blueOnEvenRedInOdd from './derivedStateSyncers/blueOnEvenRedInOdd';
+import blueOnEvenRedInOdd from './hooks/blueOnEvenRedInOdd';
 import './style.scss';
 
 const Counter = () => {
@@ -18,5 +18,5 @@ const Counter = () => {
 
 export default Provider({
     Context: CounterContext,
-    derivedStateSyncers: [blueOnEvenRedInOdd]
+    hooks: [blueOnEvenRedInOdd]
 })(Counter);

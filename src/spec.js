@@ -5,7 +5,6 @@ import { configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import { connect, Provider } from '../dist';
 import { CONNECT_WITHOUT_PROVIDER_ERROR_MSG } from './connect';
-import { INFINITE_SET_CONTEXT_IN_SYNCER_ERROR_MSG } from './computeDerivedStates';
 
 configure({ adapter: new Adapter() });
 
@@ -19,7 +18,7 @@ let currentContext;
 let currentSetContext;
 let renderedTimes;
 
-const Context = React.createContext();
+const Context = createContext();
 
 const ContextInspector = ({ context, setContext }) => {
     currentContext = context;
@@ -99,23 +98,24 @@ it('should update context value when calling functional setContext for a specifi
     expect(currentContext).toEqual({ count: 2, name: 'islam' });
 });
 
-it('should build initial context value based on initialPropsMapper if get passed', () => {
-    const initialPropsMapper = ({ count, name }) => ({ namespace: { count, name, address: '' } });
+it('should build initial context value once at initial render based on initialPropsMapper if get passed', () => {
+    const initialPropsMapper = jest.fn().mockImplementation(({ count, name }) => ({ namespace: { count, name, address: '' } }));
 
     const Spec = App({ Context, initialPropsMapper });
     mount(<Spec count={1} name="islam"/>);
 
     expect(currentContext).toEqual({ namespace: { count: 1, name: 'islam', address: '' } });
+    expect(initialPropsMapper).toHaveBeenCalledTimes(1);
 });
 
-it('should derive state value if derivedStateSyncers get passed with one render cycle', () => {
+it('should derive state value if hook calls setContext immediately with one render cycle', () => {
     const blueColorOnEvenRedOnOdd = ({ context, prevContext, setContext }) => {
         if (context.count === prevContext.count) { return; }
 
         setContext('color', context.count % 2 === 0 ? 'blue' : 'red');
     };
 
-    const Spec = App({ Context, derivedStateSyncers: [blueColorOnEvenRedOnOdd] });
+    const Spec = App({ Context, hooks: [blueColorOnEvenRedOnOdd] });
     mount(<Spec count={0}/>);
     expect(renderedTimes).toBe(1);
     expect(currentContext).toEqual({ count: 0, color: 'blue' });
@@ -128,52 +128,55 @@ it('should derive state value if derivedStateSyncers get passed with one render 
     expect(currentContext).toEqual({ count: 3, color: 'red' });
 });
 
-it('should throw error if derivedStateSyncers is calling setContext infinitely', () => {
-    const infiniteSyncer = ({ context, setContext }) => {
+it('should throw error if hook calls setContext infinitely', () => {
+    const infiniteHook = ({ context, setContext }) => {
         // We always call setContext without being wrapped in conditions.
         setContext('color', context.count % 2 === 0 ? 'blue' : 'red');
     };
 
-    const Spec = App({ Context, derivedStateSyncers: [infiniteSyncer] });
+    const Spec = App({ Context, hooks: [infiniteHook] });
 
     expect(() => {
         mount(<Spec count={0}/>);
-    }).toThrow(INFINITE_SET_CONTEXT_IN_SYNCER_ERROR_MSG);
+    }).toThrow('Too many re-renders. React limits the number of renders to prevent an infinite loop.');
 });
 
-it('should console error if derivedStateSyncers is asynchronous', (done) => {
-    const asyncSyncer = ({ context, prevContext, setContext }) => {
-        if (context.count === prevContext.count) { return; }
-
-        const color  = context.count % 2 === 0 ? 'blue' : 'red';
-
-        setTimeout(() => {
-            console.log('async');
-            setContext('color', color);
-        });
-    };
-
-    const Spec = App({ Context, derivedStateSyncers: [asyncSyncer] });
-    mount(<Spec count={0}/>);
-
-    setTimeout(() => {
-        expect(console.error).toHaveBeenCalledWith('derived state syncer: "asyncSyncer" should be synchronous. Got asynchronous update for path: "color" with the value: blue');
-        done();
-    }, 100);
-});
-
-it('should execute effects when get passed on each update', () => {
+it('should execute hooks when get passed on each update', () => {
     const fun = jest.fn();
 
-    const Spec = App({ Context, effects: [fun] });
+    const Spec = App({ Context, hooks: [fun] });
     mount(<Spec count={0}/>);
-    expect(fun).toHaveBeenCalledWith({ context: currentContext, setContext: currentSetContext });
+
+    expect(fun).toHaveBeenCalledTimes(2);
 
     act(() => {
         currentSetContext('count', 4);
     });
 
-    expect(fun).toHaveBeenCalledWith({ context: currentContext, setContext: currentSetContext });
+    expect(fun).toHaveBeenCalledTimes(4);
+});
+
+it('should batch multiple setContext calls in sync hooks', () => {
+    const hook = jest.fn().mockImplementation(({ context, setContext, prevContext }) => {
+        if (context.count === 1 && prevContext.count === 0) {
+            setContext('a', 1);
+            setContext('b', 2);
+        }
+    });
+
+    const Spec = App({ Context, hooks: [hook] });
+    mount(<Spec count={0}/>);
+
+    hook.mockClear();
+
+    act(() => {
+        currentSetContext('count', 1);
+    });
+
+    expect(hook).toHaveBeenCalledTimes(3);
+    expect(hook).toHaveBeenCalledWith({ context: { count: 1 }, prevContext: { count: 0 }, setContext: expect.any(Function) });
+    expect(hook).toHaveBeenCalledWith({ context: { count: 1, a: 1, b: 2 }, prevContext: { count: 1 }, setContext: expect.any(Function) });
+    expect(hook).toHaveBeenCalledWith({ context: { count: 1, a: 1, b: 2 }, prevContext: { count: 1, a: 1, b: 2 }, setContext: expect.any(Function) });
 });
 
 it('should not re-render when connect state slice do not change', () => {
@@ -217,9 +220,9 @@ it('should throw error when using connect without Provider', () => {
     }).toThrow(CONNECT_WITHOUT_PROVIDER_ERROR_MSG);
 });
 
-it('should not call effects when parent update (memoized wisteria provider)', () => {
-    const effect = jest.fn();
-    const Spec = App({ Context, effects: [effect] });
+it('should not call hooks when parent update (memoized wisteria provider)', () => {
+    const hook = jest.fn();
+    const Spec = App({ Context, hooks: [hook] });
 
     const Parent = () => {
         const [count, setCount] = useState(0);
@@ -235,16 +238,16 @@ it('should not call effects when parent update (memoized wisteria provider)', ()
     };
 
     const wrapper = mount(<Parent/>);
-    effect.mockClear();
+    hook.mockClear();
 
     act(() => {
         wrapper.find('button').simulate('click');
         wrapper.update();
     });
-    expect(effect).not.toHaveBeenCalled();
+    expect(hook).not.toHaveBeenCalled();
 });
 
-// This can happen when our effects is consuming a high rate updating context from some parent.
+// This can happen when our hooks is consuming a high rate updating context from some parent.
 it('should not call connectors when wisteria context did not changed when upper update happens', () => {
     const ParentContext = createContext();
 
@@ -255,7 +258,7 @@ it('should not call connectors when wisteria context did not changed when upper 
     const NullishChild = () => null;
     const useStateToPropsMock = jest.fn().mockReturnValue({});
     const ConnectedInspector = connect(useStateToPropsMock)(NullishChild);
-    const Spec = Provider({ Context, effects: [useEffect] })(ConnectedInspector);
+    const Spec = Provider({ Context, hooks: [useEffect] })(ConnectedInspector);
 
     const Parent = () => {
         const [count, setCount] = useState(0);
