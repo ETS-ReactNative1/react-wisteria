@@ -12,7 +12,13 @@ const ContextProvider = ({
     effects = [],
 }) => (Component) => memo((props) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [context, setContext] = useStateManagement(initialPropsMapper(props), derivedStateSyncers, name);
+    const initialStateRef = useRef();
+
+    if (!initialStateRef.current) {
+        initialStateRef.current = initialPropsMapper(props);
+    }
+
+    const [context, setContext] = useStateManagement(initialStateRef.current, derivedStateSyncers, name);
     const prevStateRef = useRef({});
     const prevPropsRef = useRef({});
     const elementsCacheRef = useRef();
