@@ -13,31 +13,27 @@ import updater from '../updater';
  */
 const useStateManagement = (initialState, derivedStateSyncers, name) => {
     const [state, setState] = React.useState(initialState);
-    const [initState, setInitState] = React.useState(true);
+    const [prevState, setPrevState] = React.useState({});
+
+    const syncerStatus = {};
+    syncerStatus.done = false;
+    const syncedState = computeDerivedStates({ name, prevState, state, derivedStateSyncers, syncerStatus });
+    syncerStatus.done = true;
+
+    const doneSync = syncedState === state && state === prevState;
+
+    if (!doneSync) {
+        setState(syncedState);
+        setPrevState(state);
+    }
 
     const setContext = React.useCallback((path, value) => {
         if (isInDebugMode()) {
             traceUpdates({ name, path, value });
         }
 
-        setState((state) => {
-            const newState = updater(path, value, state);
-            const syncerStatus = {};
-            syncerStatus.done = false;
-            const stateAfterDerived = computeDerivedStates({ name, prevState: state, state: newState, derivedStateSyncers, syncerStatus });
-            syncerStatus.done = true;
-            return stateAfterDerived;
-        });
-    }, [derivedStateSyncers, name]);
-
-    if (initState) {
-        const syncerStatus = {};
-        syncerStatus.done = false;
-        const stateAfterDerived = computeDerivedStates({ name, prevState: {}, state, derivedStateSyncers, syncerStatus });
-        syncerStatus.done = true;
-        setState(stateAfterDerived);
-        setInitState(false);
-    }
+        setState((state) => updater(path, value, state));
+    }, [name]);
 
     return [state, setContext];
 };

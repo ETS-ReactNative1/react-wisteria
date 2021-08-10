@@ -1,32 +1,35 @@
-import React from 'react';
+import React, { useRef, useContext } from 'react';
 import shallowEqual from 'shallowequal';
 import { TreeContext } from '../ContextProvider';
 
 export const CONNECT_WITHOUT_PROVIDER_ERROR_MSG = 'Are you trying to use ReactWisteria\'s connect() without a Provider?';
 
 const connect = (useStateToProps) => (Component) => (ownProps) => {
-    const memo = React.useRef({ props: {}, forceUpdate: 0 });
-    const Context = React.useContext(TreeContext);
+    const prevPropsRef = useRef({});
+    const cachedElementsRef = useRef();
+    const Context = useContext(TreeContext);
 
     if (!Context) {
         throw new Error(CONNECT_WITHOUT_PROVIDER_ERROR_MSG);
     }
 
-    const { context, setContext } = React.useContext(Context);
+    const { context, setContext } = useContext(Context);
     const connectProps = useStateToProps({ context, setContext }, ownProps);
 
     // Merge connect props with ownProps.
-    const props = Object.assign({}, ownProps, connectProps);
+    const props = {
+        ...ownProps,
+        ...connectProps
+    };
 
-    // Check if the props is not identical to the memomized props in order to force update
+    // Check if the props is not identical to the memoized props in order to force update
     // and to update the memo to recent props.
-    if (!shallowEqual(props, memo.current.props)) {
-        memo.current.props = props;
-        memo.current.forceUpdate++;
+    if (!shallowEqual(props, prevPropsRef.current) || !cachedElementsRef.current) {
+        prevPropsRef.current = props;
+        cachedElementsRef.current = <Component {...props}/>;
     }
 
-    return React.useMemo(() =>
-        React.createElement(Component, props), [memo.current.forceUpdate]); // eslint-disable-line react-hooks/exhaustive-deps
+    return cachedElementsRef.current;
 };
 
 export default connect;

@@ -1,7 +1,7 @@
 import React from 'react';
 import Counter from '.';
 
-export default { title: '1-Counter' };
+export default { title: 'Basic' };
 
 export const CounterAt_0 = () => {
     return (<Counter count={0}/>);

@@ -1,8 +1,8 @@
 import React from 'react';
 import Counter from '.';
 
-export default { title: '2-Counter With Effects' };
+export default { title: 'Counter With Effects - pop alert at 10' };
 
-export const CounterAt_0 = () => {
+export const Default = () => {
     return (<Counter count={0}/>);
 };

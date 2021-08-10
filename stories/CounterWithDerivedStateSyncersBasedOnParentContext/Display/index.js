@@ -3,6 +3,8 @@ import { connect } from '../../../src';
 import './style.scss';
 
 const Display = ({ count, color }) => {
+    console.log('rendered Display', { count, color });
+
     return (
         <div className="display" style={{ color }}>
             {count}

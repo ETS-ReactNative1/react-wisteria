@@ -28,6 +28,10 @@ const ContextProvider = ({
     useEffect(() => {
         window.ReactWisteriaStores = window.ReactWisteriaStores || {};
         window.ReactWisteriaStores[name] = context;
+
+        return () => {
+            window.ReactWisteriaStores[name] = null;
+        }
     }, [context]);
 
     if (
