@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import connect from '../../../src/connect';
 
 const Strange = ({ countx, onClick }) => {
@@ -10,7 +10,7 @@ const Strange = ({ countx, onClick }) => {
 };
 
 const useStateToProps = ({ context, setContext }) => {
-    const onClick = useCallback(() => {
+    const onClick = React.useCallback(() => {
         setContext('countx', 'id: ' + Math.random());
     }, [setContext]);
 

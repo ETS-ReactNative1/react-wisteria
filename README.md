@@ -27,7 +27,8 @@ npm i react-wisteria --save
 | **name** | A name to be shown for the store when debugging | *Required*
 | **Context** | A React Context as the state container | *Required*
 | **initialPropsMapper?** | A mapper to map the Root Component props to a different state shape | *_.identity*
-| **hooks?** | Store hooks | *[]*
+| **effects?** | A list of effects | *[]*
+| **derivedStateSyncers?** | A list of derived state syncers | *[]*
 
 ## Important Notice
 
@@ -202,10 +203,11 @@ If you console log your Context, you'll see that it now received the new shape.
 
 (We can even compare objects by referental equality (===) since updates break the reference in the changed object upto the upper parent reference, so we can distinguish changes in each level without having to do expensive diffing.)
 
-## hooks Option
+## effects Option
 
-Let's say that we have to implement an effect that pops an alert message (or triggers a service request) if a specific condition is met (e.g. once the counter hits 10). In order to do this, we need access to `context` and `setContext` which allows us to inspect and respond with updates so since `alert` is a Browser API that can run in server env then we wrap it with `useEffect` (if you want to intercept the render so you can call `setContext` in sync way which will cause the Provider to render - Generally this is helpful for building data-relation on
-the data level not inside higher abstractions):
+There are two other major principles of `react-wisteria` - the handling of effects and derived states.
+
+Let's say that we have an effect that pops an alert message (or triggers a service request) if a specific condition is met (e.g. once the counter hits 10). In order to do this, we need access to `context` and `setContext` in our `effects` which allows us to inspect and respond with updates:
 
 ```js
 import React from 'react';
@@ -241,9 +243,105 @@ const Counter = () => {
 export default Provider({
     name: 'My Store',
     Context: CounterContext,
-    hooks: [useRequestReportOnTen]
+    effects: [useRequestReportOnTen]
 })(Counter);
 ```
+
+(react-wisteria will inject `({ context, setContext })` into all these `effects` arrays.)
+
+## derivedStateSyncers Option
+
+The next thing is the syncing of derived states. But why would you need derived state handling different from `effects` when you can simply use `effects` and be done with it?
+
+Below, we'll present the `effects` solution of syncing states. We want to color the even numbers with blue and the odd numbers with red in the `<Display/>` component. (You may think that it can be computed in the render phase, but we want to see it in another place, so we need it in the state).
+
+![Apr-23-2020 13-20-45](https://user-images.githubusercontent.com/7091543/80088505-4855e000-8565-11ea-8a07-54d71ad6f255.gif)
+
+Here's the implementation:
+
+```js
+import React from 'react';
+
+const useBlueOnEvenRedOnOdd = ({ context, setContext }) => {
+    const { count } = context;
+
+    React.useEffect(() => {
+        setContext('color', count % 2 === 0 ? 'blue' : 'red');
+    }, [count, setContext]);
+};
+
+export default useBlueOnEvenRedOnOdd;
+```
+
+That's really nice! Whenever the count changes, we update the color in the `useEffect`. But there's something missing in this implementation. Let's build it in another way while consoling some logs:
+
+```js
+import React from 'react';
+
+const useBlueOnEvenRedOnOdd = ({ context, setContext }) => {
+    const { count, color } = context;
+
+    React.useEffect(() => {
+        console.log('unsynced state at some point in effects', { count, color });
+        const newColor = count % 2 === 0 ? 'blue' : 'red';
+
+        if (newColor === color) { return; }
+
+        setContext('color', newColor);
+    }, [count, setContext, color]);
+};
+
+export default useBlueOnEvenRedOnOdd;
+```
+
+If we run this and click **just once** on the control, we will get these logs:
+
+![image](https://user-images.githubusercontent.com/7091543/80085215-96b4b000-8560-11ea-9aaf-d846616db610.png)
+
+We're rendering the component twice since the `count` was changed and the sync only starts in `useEffect` (after the render phase). But the unnecessary re-render isn't the worst thing - at some point in our effect, we got a unsynced state of number 1 being blue first and after that the sync comes which means that we can't be sure that our state is actually synced in our effects.
+
+How can we solve this situation? Since we're syncing states and we aren't using the Browser API (DOM Mutations or Async Operations), we have another option to pass for derivedState syncing called `derivedStateSyncers`. First we define a function:
+
+```js
+const blueOnEvenRedInOdd = ({ context, prevContext, setContext }) => {
+    const { count } = context;
+    const { count: prevCount } = prevContext;
+
+    if (count === prevCount) { return; }
+
+    setContext('color', count % 2 === 0 ? 'blue' : 'red');
+};
+
+export default blueOnEvenRedInOdd;
+```
+
+This function receives the context, setContext, prevContext (empty object {} in initial render) and updates the `color` based on changes in the `count`.
+
+After that we define this syncer in our syncers list:
+
+```js
+import { Provider } from 'react-wisteria';
+import CounterContext from './CounterContext';
+
+const Counter = () => {
+    return (
+        <div className="counter">
+            <Display/>
+            <Controls/>
+        </div>
+    );
+};
+
+export default Provider({
+    name: 'My Store',
+    Context: CounterContext,
+    derivedStateSyncers: [blueOnEvenRedInOdd]
+})(Counter);
+```
+
+Now we get synced state at each point of time in our `effects` and we also have just one render (even with the two changes - `count` and `color`) thanks to React.setState batching.
+
+Remember that you can always mix `effects` and `derivedStateSyncers` at the same time whenever it fits your purpose.
 
 ## debugging
 

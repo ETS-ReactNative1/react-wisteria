@@ -3,7 +3,7 @@ import { Provider } from '../../src';
 import CounterContext from './context';
 import Display from './Display';
 import Controls from './Controls';
-import useRequestReportOnTen from './hooks/useRequestReportOnTen';
+import useRequestReportOnTen from './effects/useRequestReportOnTen';
 import './style.scss';
 
 const Counter = () => {
@@ -18,5 +18,5 @@ const Counter = () => {
 
 export default Provider({
     Context: CounterContext,
-    hooks: [useRequestReportOnTen]
+    effects: [useRequestReportOnTen]
 })(Counter);

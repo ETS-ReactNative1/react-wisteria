@@ -11,9 +11,13 @@ declare module 'react-wisteria' {
          */
         initialPropsMapper?: (Object) => Object,
         /**
-         * All the hooks for the state
+         * Derived state syncers
          */
-         hooks?: []
+        derivedStateSyncers?: [],
+        /**
+         * All the effects for the state
+         */
+        effects?: []
     }
 
     type IProvider = (options: IOptions) => (Component: React.Component | React.FunctionComponent) => React.FunctionComponent;

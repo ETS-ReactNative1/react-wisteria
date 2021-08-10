@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { connect } from '../../../src';
 import './style.scss';
 
@@ -12,11 +12,11 @@ const Controls = ({ onAddition, onDecrement }) => {
 };
 
 const useStateToProps = ({ setContext }) => {
-    const onAddition = useCallback(() => {
+    const onAddition = React.useCallback(() => {
         setContext('count', (count) => count + 1);
     }, [setContext]);
 
-    const onDecrement = useCallback(() => {
+    const onDecrement = React.useCallback(() => {
         setContext('count', (count) => count - 1);
     }, [setContext]);
 

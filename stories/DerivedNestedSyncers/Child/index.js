@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import NestedRelationContext from '../context';
 
 const Child = () => {
-    const { context, setContext } = useContext(NestedRelationContext);
+    const { context, setContext } = React.useContext(NestedRelationContext);
     console.log('will render only once with all the state being synced');
     console.log({ context: JSON.stringify(context) });
   

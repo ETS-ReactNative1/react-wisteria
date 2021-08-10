@@ -1,26 +1,10 @@
-import React, { createContext, useState, StrictMode } from 'react';
+import React from 'react';
 import { addDecorator } from '@storybook/react';
 
-export const ParentContext = createContext();
-
-const Parent = ({ children }) => {
-    const [state, setState] = useState({ count: 1 });
-
-    return (
-        <ParentContext.Provider value={state}>
-            <div>Parent Count: {state.count}</div>
-            <button onClick={() => setState(({ count }) => ({ count: count + 1}))}>Increment</button>
-            {children}
-        </ParentContext.Provider>
-    );
-};
-
 addDecorator((storyFn) => (
-    <StrictMode>
-        <Parent>
-            {storyFn()}
-        </Parent>
-    </StrictMode>
+    <React.StrictMode>
+        {storyFn()}
+    </React.StrictMode>
 ));
 
 window.isWisteriaDebugModeForced = true;
