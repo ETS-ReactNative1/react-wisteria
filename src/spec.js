@@ -1,10 +1,16 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { act } from 'react-dom/test-utils';
 import { mount } from 'enzyme';
 import { configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { connect, Provider } from '../dist';
-import { CONNECT_WITHOUT_PROVIDER_ERROR_MSG } from './connect';
+import {
+    connect,
+    useWisteriaStateSlice,
+    useWisteriaStateUpdater,
+    useCreateStores,
+    StoreProvider,
+    useWisteriaStore
+} from '../dist';
 
 configure({ adapter: new Adapter() });
 
@@ -14,11 +20,10 @@ jest.spyOn(console, 'error').mockImplementation(() => null);
 jest.spyOn(console, 'trace').mockImplementation(() => null);
 jest.spyOn(console, 'groupEnd').mockImplementation(() => null);
 
+let wrapper;
 let currentContext;
 let currentSetContext;
 let renderedTimes;
-
-const Context = React.createContext();
 
 const ContextInspector = ({ context, setContext }) => {
     currentContext = context;
@@ -28,9 +33,32 @@ const ContextInspector = ({ context, setContext }) => {
     return null;
 };
 
-const ConnectedContextInspector = connect((x) => x)(ContextInspector);
+const MY_APP_STORE_KEY = 'my-app';
 
-const App = (options) => Provider(options)(ConnectedContextInspector);
+const useStateToProps = () => {
+    const myAppStore = useWisteriaStore(MY_APP_STORE_KEY);
+    const context = useWisteriaStateSlice(myAppStore);
+    const setContext = useWisteriaStateUpdater(myAppStore);
+
+    return {
+        context,
+        setContext
+    };
+}
+
+const ConnectedContextInspector = connect(useStateToProps)(ContextInspector);
+
+const App = ({ children, stores, ...rest }) => {
+    const mainAppStoreConfig = { ...rest, name: MY_APP_STORE_KEY };
+    const strs = useCreateStores(stores ? [mainAppStoreConfig, ...stores] : [mainAppStoreConfig]);
+
+    return (
+        <StoreProvider stores={strs}>
+            {children}
+            <ConnectedContextInspector/>
+        </StoreProvider>
+    );
+};
 
 beforeEach(() => {
     currentContext = null;
@@ -38,16 +66,31 @@ beforeEach(() => {
     renderedTimes = 0;
 });
 
+afterEach(() => {
+    try {
+        wrapper.unmount();
+    } catch (err) {
+        //
+    }
+});
+
 it('should build initial context value based on initial props', () => {
-    const Spec = App({ Context });
-    mount(<Spec count={1} name="islam"/>);
+    const config = { initialState: { count: 1, name: 'islam' } };
+    wrapper = mount(<App {...config}/>);
 
     expect(currentContext).toEqual({ count: 1, name: 'islam' });
 });
 
+it('should build initial context value based on the initialPropsMapper if supplied', () => {
+    const config = { initialState: { count: 1, name: 'islam' }, initialPropsMapper: (state) => ({ ...state, isInitialRender: true }) };
+    wrapper = mount(<App {...config}/>);
+
+    expect(currentContext).toEqual({ count: 1, name: 'islam', isInitialRender: true });
+});
+
 it('should update context value when calling setContext with a value for a specific path', () => {
-    const Spec = App({ Context });
-    mount(<Spec count={1} name="islam"/>);
+    const config = { initialState: { count: 1, name: 'islam' } };
+    wrapper = mount(<App {...config}/>);
 
     act(() => {
         currentSetContext('count', 2);
@@ -57,8 +100,8 @@ it('should update context value when calling setContext with a value for a speci
 });
 
 it('should update context value when calling functional setContext for a specific path', () => {
-    const Spec = App({ Context });
-    mount(<Spec count={1} name="islam"/>);
+    const config = { initialState: { count: 1, name: 'islam' } };
+    wrapper = mount(<App {...config}/>);
 
     act(() => {
         currentSetContext('count', (count) => count + 1);
@@ -67,24 +110,17 @@ it('should update context value when calling functional setContext for a specifi
     expect(currentContext).toEqual({ count: 2, name: 'islam' });
 });
 
-it('should build initial context value based on initialPropsMapper if get passed', () => {
-    const initialPropsMapper = ({ count, name }) => ({ namespace: { count, name, address: '' } });
-
-    const Spec = App({ Context, initialPropsMapper });
-    mount(<Spec count={1} name="islam"/>);
-
-    expect(currentContext).toEqual({ namespace: { count: 1, name: 'islam', address: '' } });
-});
-
 it('should derive state value if derivedStateSyncers get passed with one render cycle', () => {
-    const blueColorOnEvenRedOnOdd = ({ context, prevContext, setContext }) => {
+    const blueColorOnEvenRedOnOdd = (stores) => {
+        const { context, prevContext, setContext } = stores.get(MY_APP_STORE_KEY);
         if (context.count === prevContext.count) { return; }
 
         setContext('color', context.count % 2 === 0 ? 'blue' : 'red');
     };
 
-    const Spec = App({ Context, derivedStateSyncers: [blueColorOnEvenRedOnOdd] });
-    mount(<Spec count={0}/>);
+    const config = { initialState: { count: 0 }, derivedStateSyncers: [blueColorOnEvenRedOnOdd] };
+    wrapper = mount(<App {...config}/>);
+
     expect(renderedTimes).toBe(1);
     expect(currentContext).toEqual({ count: 0, color: 'blue' });
 
@@ -97,44 +133,27 @@ it('should derive state value if derivedStateSyncers get passed with one render 
 });
 
 it('should throw error if derivedStateSyncers is calling setContext infinitely', () => {
-    const infiniteSyncer = ({ setContext }) => {
+    const infiniteSyncer = (stores) => {
+        const { setContext } = stores.get(MY_APP_STORE_KEY);
         // We always call setContext without being wrapped in conditions.
         setContext('color', { obj: {} });
     };
 
-    const Spec = App({ Context, derivedStateSyncers: [infiniteSyncer] });
+    const config = { initialState: { count: 0 }, derivedStateSyncers: [infiniteSyncer] };
 
     expect(() => {
-        mount(<Spec count={0}/>);
-    }).toThrow('Too many re-renders. React limits the number of renders to prevent an infinite loop.');
-});
-
-it('should console error if derivedStateSyncers is asynchronous', (done) => {
-    const asyncSyncer = ({ context, prevContext, setContext }) => {
-        if (context.count === prevContext.count) { return; }
-
-        const color  = context.count % 2 === 0 ? 'blue' : 'red';
-
-        setTimeout(() => {
-            console.log('async');
-            setContext('color', color);
-        });
-    };
-
-    const Spec = App({ Context, derivedStateSyncers: [asyncSyncer] });
-    mount(<Spec count={0}/>);
-
-    setTimeout(() => {
-        expect(console.error).toHaveBeenCalledWith('derived state syncer: "asyncSyncer" should be synchronous. Got asynchronous update for path: "color" with the value: blue');
-        done();
-    }, 100);
+        mount(<App {...config}/>);
+    }).toThrow(`One of your derivedStateSyncers is infinitely calling setContext. Reached Max limit: 100.
+Pass the "debugWisteria" query param to the url in order to see the state updates.`);
 });
 
 it('should give effects to inspect and update state', () => {
     const effectTextGenerator = (count) => `useSomething consoled count {${count}}`;
 
-    const useSomething = ({ context, setContext }) => {
-        const { count } = context;
+    const useSomething = () => {
+        const myAppStore = useWisteriaStore(MY_APP_STORE_KEY);
+        const count = useWisteriaStateSlice(myAppStore, 'count');
+        const setContext = useWisteriaStateUpdater(myAppStore);
 
         useEffect(() => {
             if (!window.effectResponse) {
@@ -144,120 +163,146 @@ it('should give effects to inspect and update state', () => {
         }, [count, setContext]);
     };
 
-    const Spec = App({ Context, effects: [useSomething] });
-    mount(<Spec count={0}/>);
+    const config = { initialState: { count: 0 }, effects: [useSomething] };
+    wrapper = mount(<App {...config}/>);
 
     expect(window.effectResponse).toBe(effectTextGenerator(0));
     expect(currentContext.count).toBe(1);
 });
 
 it('should not re-render when connect state slice do not change', () => {
-    const ContextInspector = ({ count, setContext }) => {
-        currentSetContext = setContext;
-        renderedTimes++;
-    
+    let renderedChild = 0;
+
+    const Child = ({ count }) => {  
+        renderedChild++;  
         return count;
     };
 
-    const ConnectedContextInspector = connect(({ context: { count }, setContext }) => ({ count, setContext }))(ContextInspector);
-    const Spec = Provider({ Context })(ConnectedContextInspector);
+    const useStateToProps = () => {
+        const myAppStore = useWisteriaStore(MY_APP_STORE_KEY);
+        const count = useWisteriaStateSlice(myAppStore, 'count');
 
-    mount(<Spec count={0}/>);
-    expect(renderedTimes).toBe(1);
+        return {
+            count
+        }
+    };
+
+    const ConnectedChild = connect(useStateToProps)(Child);
+
+    const config = { initialState: { count: 0 } };
+
+    wrapper = mount(
+        <App {...config}>
+            <ConnectedChild/>
+        </App>
+    );
+
+    expect(renderedChild).toBe(1);
     act(() => {
         currentSetContext('count', (count) => count + 1);
     });
 
-    expect(renderedTimes).toBe(2);
+    expect(renderedChild).toBe(2);
 
     act(() => {
         currentSetContext('color', 'purple');
     });
 
-    expect(renderedTimes).toBe(2); // Do not re-render
+    expect(renderedChild).toBe(2); // Do not re-render
 });
 
-it('should throw error when using connect without Provider', () => {
-    const ContextInspector = ({ count, setContext }) => {
-        currentSetContext = setContext;
-        renderedTimes++;
+it('should throw an error when using an existing store name', () => {
+    const Component = () => {
+        useCreateStores([
+            { name: 'store-x', initialState: {} },
+            { name: 'store-x', initialState: {} }
+        ]);
     
-        return count;
+        return (
+            <div/>
+        );
     };
-
-    const ConnectedContextInspector = connect(({ context: { count }, setContext }) => ({ count, setContext }))(ContextInspector);
 
     expect(() => {
-        mount(<ConnectedContextInspector count={0}/>);
-    }).toThrow(CONNECT_WITHOUT_PROVIDER_ERROR_MSG);
+        mount(<Component/>);
+    }).toThrow('"store-x" was already assigned for another store');
 });
 
-it('should not call effects/syncers when parent update (memoized wisteria provider)', () => {
-    const effect = jest.fn();
-    const syncer = jest.fn();
-    const Spec = App({ Context, effects: [effect], derivedStateSyncers: [syncer] });
-
-    const Parent = () => {
-        const [count, setCount] = useState(0);
-
+it('should throw an error when store name is missing', () => {
+    const Component = () => {
+        useCreateStores([
+            { initialState: {} }
+        ]);
+    
         return (
-            <div>
-                <Spec count={1} name="islam"/>
-                <button type="button" onClick={() => setCount((x) => x + 1)}>
-                    Update Parent State. {count}
-                </button>
-            </div>
+            <div/>
         );
     };
 
-    const wrapper = mount(<Parent/>);
-    effect.mockClear();
-    syncer.mockClear();
+    expect(() => {
+        mount(<Component/>);
+    }).toThrow('"name" is required option for Wisteria Store');
+});
 
-    act(() => {
-        wrapper.find('button').simulate('click');
-        wrapper.update();
-    });
-    expect(effect).not.toHaveBeenCalled();
-    expect(syncer).not.toHaveBeenCalled();
+it('should update second store if gets updated by first store in effects', () => {
+    const useUpdateBOnCountZero = () => {
+        const storeA = useWisteriaStore('store-a');
+        const storeB = useWisteriaStore('store-b');
+
+        const countA = useWisteriaStateSlice(storeA, 'count');
+        const storeAUpdater = useWisteriaStateUpdater(storeA);
+        const storeBUpdater = useWisteriaStateUpdater(storeB);
+
+        React.useEffect(() => {
+            if (countA === 0) {
+                storeAUpdater('count', '1');
+                storeBUpdater('count', '1');
+            }
+        }, [countA, storeAUpdater, storeBUpdater]);
+    }
+
+    const stores = [
+        { name: 'store-a', initialState: { count: 0 }, effects: [useUpdateBOnCountZero] },
+        { name: 'store-b', initialState: { count: 0 } }
+    ];
+
+    wrapper = mount(
+        <App stores={stores}>
+            Child
+        </App>
+    );
+
+    wrapper.update();
+
+    expect(window.ReactWisteriaStores['store-a'].count).toBe('1');
+    expect(window.ReactWisteriaStores['store-b'].count).toBe('1');
 });
 
 
-it('should allow effects/syncers to subscribe to external context (hook-able) and it should not call connector when state does not change', () => {
-    const ParentContext = createContext();
+it('should update second store if gets updated by first store in derivedStateSyncers', () => {
+    const updateBOnCountZero = (stores) => {
+        const { context: { count: countA }, setContext: storeAUpdater } = stores.get('store-a');
+        const { setContext: storeBUpdater } = stores.get('store-b');
 
-    const useEffect = () => {
-        useContext(ParentContext);
-    };
+        if (countA !== 0) { return; }
 
-    const useSyncer = () => {
-        useContext(ParentContext);
-    };
+        storeAUpdater('count', '1');
+        storeBUpdater('count', '1');
+    }
 
-    const NullishChild = () => null;
-    const useStateToPropsMock = jest.fn().mockReturnValue({});
-    const ConnectedInspector = connect(useStateToPropsMock)(NullishChild);
-    const Spec = Provider({ Context, effects: [useEffect], derivedStateSyncers: [useSyncer] })(ConnectedInspector);
+    const stores = [
+        { name: 'store-a', initialState: { count: 0 }, derivedStateSyncers: [updateBOnCountZero] },
+        { name: 'store-b', initialState: { count: 0 } }
+    ];
 
-    const Parent = () => {
-        const [count, setCount] = useState(0);
+    wrapper = mount(
+        <App stores={stores}>
+            Child
+        </App>
+    );
 
-        return (
-            <ParentContext.Provider value={count}>
-                <Spec count={1} name="islam"/>
-                <button type="button" onClick={() => setCount((x) => x + 1)}>
-                    Update Parent State. {count}
-                </button>
-            </ParentContext.Provider>
-        );
-    };
+    wrapper.update();
 
-    const wrapper = mount(<Parent/>);
-    useStateToPropsMock.mockClear();
-
-    act(() => {
-        wrapper.find('button').simulate('click');
-        wrapper.update();
-    });
-    expect(useStateToPropsMock).not.toHaveBeenCalled();
+    expect(window.ReactWisteriaStores['store-a'].count).toBe('1');
+    expect(window.ReactWisteriaStores['store-b'].count).toBe('1');
 });

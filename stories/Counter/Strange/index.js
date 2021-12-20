@@ -1,5 +1,7 @@
 import React from 'react';
+import { useWisteriaStore } from '../../../src';
 import connect from '../../../src/connect';
+import { useWisteriaStateSlice, useWisteriaStateUpdater } from '../../../src/useWisteriaState';
 
 const Strange = ({ countx, onClick }) => {
     return (
@@ -9,13 +11,17 @@ const Strange = ({ countx, onClick }) => {
     )
 };
 
-const useStateToProps = ({ context, setContext }) => {
-    const onClick = React.useCallback(() => {
+const useStateToProps = () => {
+    const store = useWisteriaStore('my-store');
+    const countx = useWisteriaStateSlice(store, 'countx');
+    const setContext = useWisteriaStateUpdater(store);
+
+    const onClick = () => {
         setContext('countx', 'id: ' + Math.random());
-    }, [setContext]);
+    };
 
     return {
-        countx: context.countx,
+        countx,
         onClick
     }
 };

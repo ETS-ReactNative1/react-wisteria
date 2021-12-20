@@ -1,6 +1,6 @@
 {
   "name": "react-wisteria",
-  "version": "7.0.0",
+  "version": "8.0.0-rc2",
   "description": "React Functional Context",
   "keywords": [
     "react",
@@ -10,10 +10,9 @@
     "management"
   ],
   "main": "dist/index.js",
-  "typings": "index.d.ts",
   "dependencies": {
     "golden-path": "^1.1.6",
-    "shallowequal": "1.1.0"
+    "use-sync-external-store": "1.0.0-rc.0-next-aa8f2bdbc-20211215"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
@@ -32,7 +31,7 @@
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^2.4.0",
     "jest": "^26.0.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "node-sass": "^4.13.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",

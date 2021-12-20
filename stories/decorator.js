@@ -5,12 +5,14 @@ export const ParentContext = React.createContext();
 
 const Parent = ({ children }) => {
     const [state, setState] = React.useState({ count: 1 });
+    const [toggled, setToggled] = React.useState(true);
 
     return (
         <ParentContext.Provider value={state}>
+            <button onClick={() => setToggled((x) => !x)}>Toggle Wisteria</button>
             <div>Parent Count: {state.count}</div>
             <button onClick={() => setState(({ count }) => ({ count: count + 1}))}>Increment</button>
-            {children}
+            {toggled ? children : null}
         </ParentContext.Provider>
     );
 };

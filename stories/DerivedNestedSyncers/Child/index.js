@@ -1,8 +1,7 @@
 import React from 'react';
-import NestedRelationContext from '../context';
+import { connect, useWisteriaStateSlice, useWisteriaStateUpdater, useWisteriaStore } from '../../../src';
 
-const Child = () => {
-    const { context, setContext } = React.useContext(NestedRelationContext);
+const Child = ({ context, setContext }) => {
     console.log('will render only once with all the state being synced');
     console.log({ context: JSON.stringify(context) });
   
@@ -13,5 +12,16 @@ const Child = () => {
     );
   };
   
-  export default Child;
+  const useStateToProps = () => {
+    const store = useWisteriaStore('my-store');
+    const context = useWisteriaStateSlice(store);
+    const setContext = useWisteriaStateUpdater(store);
+
+    return {
+      context,
+      setContext
+    };
+  };
+
+  export default connect(useStateToProps)(Child);
   

@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect } from '../../../src';
+import { connect, useWisteriaStateSlice, useWisteriaStore } from '../../../src';
 import './style.scss';
 
 const Display = ({ count }) => {
@@ -10,8 +10,13 @@ const Display = ({ count }) => {
     )
 };
 
-const useStateToProps = ({ context }) => ({
-    count: context.count
-});
+const useStateToProps = () => {
+    const store = useWisteriaStore('my-store');
+    const count = useWisteriaStateSlice(store, 'count');
+
+    return {
+        count
+    };
+};
 
 export default connect(useStateToProps)(Display);

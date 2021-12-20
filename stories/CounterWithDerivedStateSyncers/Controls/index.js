@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect } from '../../../src';
+import { connect, useWisteriaStateUpdater, useWisteriaStore } from '../../../src';
 import './style.scss';
 
 const Controls = ({ onAddition, onDecrement }) => {
@@ -11,15 +11,17 @@ const Controls = ({ onAddition, onDecrement }) => {
     )
 };
 
-const useStateToProps = ({ setContext }) => {
-    const onAddition = React.useCallback(() => {
+const useStateToProps = () => {
+    const store = useWisteriaStore('my-store');
+    const setContext = useWisteriaStateUpdater(store);
+
+    const onAddition = () => {
         setContext('count', (count) => count + 1);
-    }, [setContext]);
+    };
 
-    const onDecrement = React.useCallback(() => {
+    const onDecrement = () => {
         setContext('count', (count) => count - 1);
-    }, [setContext]);
-
+    };
 
     return {
         onAddition,

@@ -1,5 +1,7 @@
 const derivedC = (stores) => {
-    const { context, prevContext, setContext } = stores.get('my-store');
+    console.log('derivedC called');
+    const { context, prevContext } = stores.get('store3');
+    const { setContext } = stores.get('store4');
     const { c } = context;
     const { c: prevC } = prevContext;
   

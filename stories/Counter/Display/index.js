@@ -1,6 +1,7 @@
 import React, { Profiler } from 'react';
 import { range } from 'lodash';
-import { connect } from '../../../src';
+import { connect, useWisteriaStore } from '../../../src';
+import { useWisteriaStateSlice } from '../../../src/useWisteriaState';
 import './style.scss';
 
 const callback = (id, phase, actualTime, baseTime, startTime, commitTime) => {
@@ -29,8 +30,13 @@ const Display = ({ count }) => {
     )
 };
 
-const useStateToProps = ({ context }) => ({
-    count: context.count
-});
+const useStateToProps = () => {
+    const store = useWisteriaStore('my-store');
+    const count = useWisteriaStateSlice(store, 'count');
+
+    return {
+        count
+    };
+};
 
 export default connect(useStateToProps)(Display);

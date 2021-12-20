@@ -1,4 +1,5 @@
-const blueOnEvenRedInOdd = ({ context, prevContext, setContext }) => {
+const blueOnEvenRedInOdd = (stores) => {
+    const { context, setContext, prevContext } = stores.get('my-store');
     const { count } = context;
     const { count: prevCount } = prevContext;
 

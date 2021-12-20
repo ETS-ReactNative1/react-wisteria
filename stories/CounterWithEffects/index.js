@@ -1,22 +1,23 @@
 import React from 'react';
-import { Provider } from '../../src';
-import CounterContext from './context';
+import { StoreProvider, useCreateStores } from '../../src';
 import Display from './Display';
 import Controls from './Controls';
 import useRequestReportOnTen from './effects/useRequestReportOnTen';
 import './style.scss';
 
-const Counter = () => {
+const effects = [useRequestReportOnTen];
+
+const Counter = (props) => {
+    const stores = useCreateStores([{ name: 'my-store', initialState: props, effects: effects }]);
 
     return (
-        <div className="counter">
-            <Display/>
-            <Controls/>
-        </div>
+        <StoreProvider stores={stores}>
+            <div className="counter">
+                <Display/>
+                <Controls/>
+            </div>
+        </StoreProvider>
     );
 };
 
-export default Provider({
-    Context: CounterContext,
-    effects: [useRequestReportOnTen]
-})(Counter);
+export default Counter;
