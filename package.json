@@ -1,6 +1,6 @@
 {
   "name": "react-wisteria",
-  "version": "8.0.0-rc2",
+  "version": "8.0.0-rc4",
   "description": "React Functional Context",
   "keywords": [
     "react",
@@ -12,6 +12,7 @@
   "main": "dist/index.js",
   "dependencies": {
     "golden-path": "^1.1.6",
+    "shallowequal": "1.1.0",
     "use-sync-external-store": "1.0.0-rc.0-next-aa8f2bdbc-20211215"
   },
   "devDependencies": {

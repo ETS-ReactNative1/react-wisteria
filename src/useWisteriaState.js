@@ -11,7 +11,7 @@ export const useWisteriaState = (store) => {
 };
 
 export const useWisteriaStateSlice = (store, select = '') => {
-    const selector = get(select);
+    const selector = typeof select === 'string' ? get(select) : select;
     const stateSlice = useSyncExternalStore(store.subscribe, () => selector(store.getSnapshot().state));
     return stateSlice;
 };
