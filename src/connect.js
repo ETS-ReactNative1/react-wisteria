@@ -1,9 +1,6 @@
-import React, { useRef } from 'react';
-import shallowEqual from 'shallowequal';
+import React, { memo } from 'react';
 
-const connect = (useStateToProps) => (Component) => (ownProps) => {
-    const prevPropsRef = useRef({});
-    const elementsCacheRef = useRef();
+const connect = (useStateToProps) => (Component) => memo((ownProps) => {
     const connectProps = useStateToProps(ownProps);
 
     // Merge connect props with ownProps.
@@ -12,14 +9,7 @@ const connect = (useStateToProps) => (Component) => (ownProps) => {
         ...connectProps
     };
 
-    if (!shallowEqual(prevPropsRef.current, props)) {
-        prevPropsRef.current = props;
-        elementsCacheRef.current = (
-            <Component {...props}/>
-        );
-    }
-
-    return elementsCacheRef.current;
-};
+    return <Component {...props}/>;
+});
 
 export default connect;
