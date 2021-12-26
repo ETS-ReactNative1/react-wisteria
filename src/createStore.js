@@ -85,7 +85,7 @@ export const createStore = (options) => {
             Object.values(StoresSymbols[symbol]).forEach((store) => {
                 if (store.dirty) {
                     store._subscriptions.forEach((s) => s());
-                    store.dirty = false;   
+                    store.dirty = false;
                 }
             });
         }
