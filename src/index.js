@@ -1,6 +1,6 @@
 import { useCreateStores } from './createStore';
 import connect from './connect';
-import { useWisteriaStateSlice, useWisteriaStateUpdater } from './useWisteriaState';
+import { useWisteriaStateSlice, useWisteriaStateUpdater, useWisteriaPrevStateSlice } from './useWisteriaState';
 import StoreProvider from './StoreProvider';
 import useWisteriaStore from './useWisteriaStore';
 
@@ -10,5 +10,6 @@ export {
     useWisteriaStateUpdater,
     useCreateStores,
     StoreProvider,
-    useWisteriaStore
+    useWisteriaStore,
+    useWisteriaPrevStateSlice
 };

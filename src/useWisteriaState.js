@@ -16,6 +16,12 @@ export const useWisteriaStateSlice = (store, select = '') => {
     return stateSlice;
 };
 
+export const useWisteriaPrevStateSlice = (store, select = '') => {
+    const selector = typeof select === 'string' ? get(select) : select;
+    const stateSlice = useSyncExternalStore(store.subscribe, () => selector(store.getSnapshot().prevState));
+    return stateSlice;
+};
+
 export const useWisteriaStateUpdater = (store) => {
     const setState = useSyncExternalStore(store.subscribe, () => store.getSnapshot().setState);
     return setState;
