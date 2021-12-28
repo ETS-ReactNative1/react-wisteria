@@ -23,12 +23,10 @@ jest.spyOn(console, 'groupEnd').mockImplementation(() => null);
 let wrapper;
 let currentContext;
 let currentSetContext;
-let renderedTimes;
 
 const ContextInspector = ({ context, setContext }) => {
     currentContext = context;
     currentSetContext = setContext;
-    renderedTimes++;
 
     return null;
 };
@@ -63,7 +61,6 @@ const App = ({ children, stores, ...rest }) => {
 beforeEach(() => {
     currentContext = null;
     currentSetContext = null;
-    renderedTimes = 0;
 });
 
 afterEach(() => {
@@ -108,43 +105,6 @@ it('should update context value when calling functional setContext for a specifi
     });
 
     expect(currentContext).toEqual({ count: 2, name: 'islam' });
-});
-
-it('should derive state value if derivedStateSyncers get passed with one render cycle', () => {
-    const blueColorOnEvenRedOnOdd = (stores) => {
-        const { context, prevContext, setContext } = stores.get(MY_APP_STORE_KEY);
-        if (context.count === prevContext.count) { return; }
-
-        setContext('color', context.count % 2 === 0 ? 'blue' : 'red');
-    };
-
-    const config = { initialState: { count: 0 }, derivedStateSyncers: [blueColorOnEvenRedOnOdd] };
-    wrapper = mount(<App {...config}/>);
-
-    expect(renderedTimes).toBe(1);
-    expect(currentContext).toEqual({ count: 0, color: 'blue' });
-
-    act(() => {
-        currentSetContext('count', 3);
-    });
-
-    expect(renderedTimes).toBe(2);
-    expect(currentContext).toEqual({ count: 3, color: 'red' });
-});
-
-it('should throw error if derivedStateSyncers is calling setContext infinitely', () => {
-    const infiniteSyncer = (stores) => {
-        const { setContext } = stores.get(MY_APP_STORE_KEY);
-        // We always call setContext without being wrapped in conditions.
-        setContext('color', { obj: {} });
-    };
-
-    const config = { initialState: { count: 0 }, derivedStateSyncers: [infiniteSyncer] };
-
-    expect(() => {
-        mount(<App {...config}/>);
-    }).toThrow(`One of your derivedStateSyncers is infinitely calling setContext. Reached Max limit: 100.
-Pass the "debugWisteria" query param to the url in order to see the state updates.`);
 });
 
 it('should give effects to inspect and update state', () => {
@@ -263,35 +223,6 @@ it('should update second store if gets updated by first store in effects', () =>
 
     const stores = [
         { name: 'store-a', initialState: { count: 0 }, effects: [useUpdateBOnCountZero] },
-        { name: 'store-b', initialState: { count: 0 } }
-    ];
-
-    wrapper = mount(
-        <App stores={stores}>
-            Child
-        </App>
-    );
-
-    wrapper.update();
-
-    expect(window.ReactWisteriaStores['store-a'].count).toBe('1');
-    expect(window.ReactWisteriaStores['store-b'].count).toBe('1');
-});
-
-
-it('should update second store if gets updated by first store in derivedStateSyncers', () => {
-    const updateBOnCountZero = (stores) => {
-        const { context: { count: countA }, setContext: storeAUpdater } = stores.get('store-a');
-        const { setContext: storeBUpdater } = stores.get('store-b');
-
-        if (countA !== 0) { return; }
-
-        storeAUpdater('count', '1');
-        storeBUpdater('count', '1');
-    }
-
-    const stores = [
-        { name: 'store-a', initialState: { count: 0 }, derivedStateSyncers: [updateBOnCountZero] },
         { name: 'store-b', initialState: { count: 0 } }
     ];
 

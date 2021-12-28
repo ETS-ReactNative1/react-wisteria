@@ -4,11 +4,6 @@ import { update } from 'golden-path';
 
 export const StoresSymbols = {};
 
-const MAX_STACK_DEEP_COUNT = 100;
-
-const INFINITE_UPDATES_ERROR_MSG = `One of your derivedStateSyncers is infinitely calling setContext. Reached Max limit: ${MAX_STACK_DEEP_COUNT}.
-Pass the "debugWisteria" query param to the url in order to see the state updates.`;
-
 export const createStore = (options) => {
     const { initialState, name, symbol } = options;
 
@@ -26,11 +21,7 @@ export const createStore = (options) => {
 
     const _subscriptions = [];
 
-    const setState = (path, value, isInitialRender, stackDeep = 0) => {
-        if (stackDeep === 1000) {
-            throw new Error(INFINITE_UPDATES_ERROR_MSG);
-        }
-
+    const setState = (path, value, isInitialRender) => {
         traceUpdates({ path, value, name });
 
         const { state } = StoresSymbols[symbol][name].getSnapshot();
@@ -39,48 +30,6 @@ export const createStore = (options) => {
         if (state !== newState || isInitialRender) {
             externalState = { state: newState, prevState: isInitialRender ? {} : state, setState };
             StoresSymbols[symbol][name].dirty = true;
-
-            let updates = [];
-            let trackDeps = [];
-
-            const stores = {
-                get: (name) => {
-                    trackDeps.push(name);
-                    const s = StoresSymbols[symbol][name];
-                    const { state: context, prevState: prevContext } = s.getSnapshot();
-
-                    return {
-                        context,
-                        prevContext,
-                        setContext: (path, value) => {
-                            traceUpdates({ path, value, name });
-                            updates.push([name, path, value]);
-                        }
-                    }
-                }
-            }
-
-            updates = [];
-
-            Object.values(StoresSymbols[symbol]).forEach((store) => {
-                store._options.derivedStateSyncers.forEach((d) => {
-                    trackDeps = [];
-                    if (!d._storesDeps || d._storesDeps.includes(name)) {
-                        d(stores);
-                    }
-
-                    if (!d._storesDeps) {
-                        d._storesDeps = trackDeps;
-                    }
-                });
-            });
-
-            externalState = { state: newState, prevState: newState, setState };
-
-            updates.forEach(([ name, path, value ]) => {
-                const { setState } = StoresSymbols[symbol][name].getSnapshot();
-                setState(path, value, false, stackDeep + 1);
-            });
 
             Object.values(StoresSymbols[symbol]).forEach((store) => {
                 if (store.dirty) {
@@ -123,8 +72,8 @@ export const useCreateStores = (storesConfig) => {
 
     if (!storesRef.current) {
         storesRef.current = storesConfig
-            .map(({ name, initialState = {}, derivedStateSyncers = [], effects = [], initialPropsMapper = (x) => x }) => ({
-                name, initialState: initialPropsMapper(initialState), derivedStateSyncers, effects
+            .map(({ name, initialState = {}, effects = [], initialPropsMapper = (x) => x }) => ({
+                name, initialState: initialPropsMapper(initialState), effects
             }))
             .map((opt) => createStore({ ...opt, symbol }));
         storesRef.current.forEach((store) => {
