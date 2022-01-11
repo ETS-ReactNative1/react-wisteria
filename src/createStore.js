@@ -2,20 +2,18 @@ import { useRef } from 'react';
 import traceUpdates from './traceUpdates';
 import { update } from 'golden-path';
 
-export const StoresSymbols = {};
-
-export const createStore = (options) => {
+export const createStore = (storesGroupSymbol, options) => {
     const { initialState, name, symbol } = options;
 
     if (!name) {
         throw new Error('"name" is required option for Wisteria Store');
     }
 
-    if (!StoresSymbols[symbol]) {
-        StoresSymbols[symbol] = {};
+    if (!storesGroupSymbol[symbol]) {
+        storesGroupSymbol[symbol] = {};
     }
 
-    if (StoresSymbols[symbol][name]) {
+    if (storesGroupSymbol[symbol][name]) {
         throw new Error(`"${name}" was already assigned for another store`);
     }
 
@@ -24,14 +22,14 @@ export const createStore = (options) => {
     const setState = (path, value, isInitialRender) => {
         traceUpdates({ path, value, name });
 
-        const { state } = StoresSymbols[symbol][name].getSnapshot();
+        const { state } = storesGroupSymbol[symbol][name].getSnapshot();
         const newState = update(path, value, state);
 
         if (state !== newState || isInitialRender) {
             externalState = { state: newState, prevState: isInitialRender ? {} : state, setState };
-            StoresSymbols[symbol][name].dirty = true;
+            storesGroupSymbol[symbol][name].dirty = true;
 
-            Object.values(StoresSymbols[symbol]).forEach((store) => {
+            Object.values(storesGroupSymbol[symbol]).forEach((store) => {
                 if (store.dirty) {
                     store._subscriptions.forEach((s) => s());
                     store.dirty = false;
@@ -62,12 +60,13 @@ export const createStore = (options) => {
     store._options = options;
     store._subscriptions = _subscriptions;
 
-    StoresSymbols[symbol][name] = store;
+    storesGroupSymbol[symbol][name] = store;
     return store;
 };
 
 export const useCreateStores = (storesConfig) => {
     const symbol = Symbol('Wisteria Stores Group');
+    const storesGroupSymbolRef = useRef({});
     const storesRef = useRef();
 
     if (!storesRef.current) {
@@ -75,7 +74,7 @@ export const useCreateStores = (storesConfig) => {
             .map(({ name, initialState = {}, effects = [], initialPropsMapper = (x) => x }) => ({
                 name, initialState: initialPropsMapper(initialState), effects
             }))
-            .map((opt) => createStore({ ...opt, symbol }));
+            .map((opt) => createStore(storesGroupSymbolRef.current, { ...opt, symbol }));
         storesRef.current.forEach((store) => {
             const { setState } = store.getSnapshot();
             setState('', (v) => v, true);
