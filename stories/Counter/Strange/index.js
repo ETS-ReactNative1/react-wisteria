@@ -1,7 +1,5 @@
 import React from 'react';
-import { useWisteriaStore } from '../../../src';
-import connect from '../../../src/connect';
-import { useWisteriaStateSlice, useWisteriaStateUpdater } from '../../../src/useWisteriaState';
+import { useWisteriaStateSlice, useWisteriaStateUpdater, connect, useWisteriaStore } from '../../../dist/es';
 
 const Strange = ({ countx, onClick }) => {
     return (

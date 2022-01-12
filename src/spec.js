@@ -10,7 +10,7 @@ import {
     useCreateStores,
     StoreProvider,
     useWisteriaStore
-} from '../dist';
+} from '../dist/es';
 
 configure({ adapter: new Adapter() });
 

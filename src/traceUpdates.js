@@ -1,5 +1,5 @@
 import { get } from 'golden-path';
-import { TOKEN_HASH } from 'golden-path/src/constants';
+import { TOKEN_HASH } from 'golden-path';
 
 const isInDebugMode = () => {
     if (typeof window === 'undefined') {

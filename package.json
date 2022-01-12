@@ -1,6 +1,6 @@
 {
   "name": "react-wisteria",
-  "version": "8.0.1",
+  "version": "8.0.2",
   "description": "React Functional Context",
   "keywords": [
     "react",
@@ -9,9 +9,10 @@
     "state",
     "management"
   ],
-  "main": "dist/index.js",
+  "main": "dist/cjs.js",
+  "module": "dist/es.js",
   "dependencies": {
-    "golden-path": "^1.1.7",
+    "golden-path": "^1.1.8",
     "use-sync-external-store": "1.0.0-rc.0-next-3dc41d8a2-20211223"
   },
   "devDependencies": {
@@ -35,6 +36,8 @@
     "node-sass": "^4.13.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "rollup": "^2.63.0",
+    "rollup-plugin-babel": "^4.4.0",
     "sass-loader": "^8.0.2",
     "style-loader": "^1.2.1",
     "webpack": "^4.43.0",
@@ -44,7 +47,7 @@
   "scripts": {
     "start": "npm run storybook",
     "storybook": "start-storybook",
-    "build": "node_modules/.bin/webpack --config webpack.config.js",
+    "build": "rollup --config",
     "lint": "eslint .",
     "test": "npm run build && jest"
   },
