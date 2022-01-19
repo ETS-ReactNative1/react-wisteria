@@ -1,4 +1,3 @@
-import { get } from 'golden-path';
 import { TOKEN_HASH } from 'golden-path';
 
 const isInDebugMode = () => {
@@ -10,7 +9,7 @@ const isInDebugMode = () => {
         return true;
     }
 
-    const search = get('location.search', window) || '';
+    const search = window?.location?.search || '';
     return search.includes('debugWisteria');
 };
 
