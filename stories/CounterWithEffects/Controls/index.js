@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect, useWisteriaStateUpdater, useWisteriaStore } from '../../../src';
+import { connect, useWisteriaStateUpdater, useWisteriaStore } from '../../../dist/es';
 import './style.scss';
 
 const Controls = ({ onAddition, onDecrement }) => {

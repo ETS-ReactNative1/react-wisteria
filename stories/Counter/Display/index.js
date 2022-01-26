@@ -1,6 +1,6 @@
 import React, { Profiler } from 'react';
 import { range } from 'lodash';
-import { connect, useWisteriaStore, useWisteriaStateSlice } from '../../../src';
+import { connect, useWisteriaStore, useWisteriaStateSlice } from '../../../dist/es';
 import './style.scss';
 
 const callback = (id, phase, actualTime, baseTime, startTime, commitTime) => {

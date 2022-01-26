@@ -1,5 +1,5 @@
 import React from 'react';
-import { StoreProvider, useCreateStores } from '../../src';
+import { StoreProvider, useCreateStores } from '../../dist/es';
 import Display from './Display';
 import Controls from './Controls';
 import Strange from './Strange';

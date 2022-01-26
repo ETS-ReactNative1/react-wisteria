@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWisteriaStateSlice, useWisteriaStore } from '../../../src';
+import { useWisteriaStateSlice, useWisteriaStore } from '../../../dist/es';
 
 const useRequestReportOnTen = () => {
     const myStore = useWisteriaStore('my-store');
