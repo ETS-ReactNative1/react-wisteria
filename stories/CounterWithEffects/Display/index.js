@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect, useWisteriaStateSlice, useWisteriaStore } from '../../../dist/es';
+import { connect, useWisteriaStateSlice, useWisteriaStore } from '../../../src';
 import './style.scss';
 
 const Display = ({ count }) => {

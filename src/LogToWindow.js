@@ -1,10 +1,8 @@
 import { useEffect } from 'react';
 import { useWisteriaState } from './useWisteriaState';
 
-const Effects = ({ name, effects, store }) => {
+const LogToWindow = ({ store, name }) => {
     const { context, setContext } = useWisteriaState(store);
-
-    effects.forEach((effect) => effect());
 
     useEffect(() => {
         window.ReactWisteriaStores = window.ReactWisteriaStores || {};
@@ -21,4 +19,4 @@ const Effects = ({ name, effects, store }) => {
     return null;
 };
 
-export default Effects;
+export default LogToWindow;
