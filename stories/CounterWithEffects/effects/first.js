@@ -1,6 +1,7 @@
 import { useWisteriaStateSlice, useWisteriaStateUpdater, useWisteriaStore } from '../../../src';
 
 const useFirst = () => {
+    console.log('hook useFirst was called');
     const myStore = useWisteriaStore('my-store');
     const setContext = useWisteriaStateUpdater(myStore);
     const count = useWisteriaStateSlice(myStore, 'count');
