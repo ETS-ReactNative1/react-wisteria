@@ -125,7 +125,16 @@ const useStateToProps = () => {
 export default connect(useStateToProps)(Controls);
 ```
 
-**Please note:** Multiple `setContext` calls will be batched based on React.setState batching whilst having only one render phase. Also, `setContext` is using [golden-path](https://github.com/Attrash-Islam/golden-path) syntax under the hood which means that you can update nested paths and arrays easily.
+**Please note:** Multiple `setContext` calls will be batched based on React.setState batching whilst having only one render phase. Still you can use setContext.batchUpdates in order to queue multiple updates like this:
+
+```js
+setContext.batchUpdates([
+    ['firstPath', 'x'],
+    ['secondPath', 'y']
+]);
+```
+
+Also, `setContext` is using [golden-path](https://github.com/Attrash-Islam/golden-path) syntax under the hood which means that you can update nested paths and arrays easily.
 
 It's also important to remember to wrap dynamic data in the v function from golden-path in case it might have special tokens that might break the Golden Path parser.
 
