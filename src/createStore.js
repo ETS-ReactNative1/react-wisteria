@@ -19,12 +19,7 @@ export const createStore = (storesGroupSymbol, options) => {
 
     const _subscriptions = [];
 
-    const setState = (path, value, isInitialRender) => {
-        traceUpdates({ path, value, name });
-
-        const { state } = storesGroupSymbol[symbol][name].getSnapshot();
-        const newState = update(path, value, state);
-
+    const notifySubscribersIfRelevant = (state, newState, isInitialRender) => {
         if (state !== newState || isInitialRender) {
             externalState = { state: newState, prevState: isInitialRender ? {} : state, setState };
             storesGroupSymbol[symbol][name].dirty = true;
@@ -36,6 +31,25 @@ export const createStore = (storesGroupSymbol, options) => {
                 }
             });
         }
+    };
+
+    const setState = (path, value, isInitialRender) => {
+        traceUpdates({ path, value, name });
+        const { state } = storesGroupSymbol[symbol][name].getSnapshot();
+        const newState = update(path, value, state);
+        notifySubscribersIfRelevant(state, newState, isInitialRender);
+    };
+
+    setState.batchUpdates = (updates) => {
+        const { state } = storesGroupSymbol[symbol][name].getSnapshot();
+        let newState = state;
+
+        updates.forEach(([ path, value ]) => {
+            traceUpdates({ path, value, name });
+            newState = update(path, value, newState);
+        });
+
+        notifySubscribersIfRelevant(state, newState, false);
     };
 
     let externalState = { state: initialState, prevState: {}, setState };
