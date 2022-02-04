@@ -2,10 +2,6 @@
 
 **react-wisteria** is a library that utilize the [Golden Path](https://github.com/Attrash-Islam/golden-path) Functional setter API into a multiple state stores that makes it easier to work with state. Get your state and update it without the need for selectors, actions, reducers, types, etc.
 
-## Background
-
-The idea arose during a Hackathon in [Fiverr](https://github.com/fiverr) (the company I work for) where @igor-burshtein and I had to develop a full React project over the course of just 2 days. With such a fast turnaround, there was no time to set up the usual structure with actions, selectors, reducers, etc, but we still found ourselves in need of a quick & easy way to manage state. And, so, enter this library.
-
 ## Wisteria
 
 Wisteria is a genus of flowering plants in the legume family, Fabaceae, that includes ten species of woody climbing bines that are native to China.
