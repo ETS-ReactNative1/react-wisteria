@@ -43,8 +43,7 @@ export const createStore = (storesGroupSymbol, options) => {
         let newState = state;
 
         updates.forEach(([ path, value ]) => {
-            traceUpdates({ path, value, name });
-            newState = update(path, value, newState);
+            newState = setState(path, value, false, false);
         });
 
         notifySubscribersIfStateWasChanged(name, state, newState, false);

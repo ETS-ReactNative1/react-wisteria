@@ -134,6 +134,28 @@ setContext.batchUpdates([
 ]);
 ```
 
+We've another hook that can perform batch updates on **multiple** stores as well and it's called `useWisteriaBatchUpdater` and we can use it as so:
+
+```js
+import { useWisteriaBatchUpdater } from 'react-wisteria';
+
+const useStateToProps = () => {
+    const batchUpdater = useWisteriaBatchUpdater();
+
+    const onClick = () => {
+        batchUpdater([
+            ['first-store', 'count', 100],
+            ['second-store', 'count', 200]
+        ]);
+    };
+
+    return {
+        onClick
+    };
+}
+
+```
+
 Also, `setContext` is using [golden-path](https://github.com/Attrash-Islam/golden-path) syntax under the hood which means that you can update nested paths and arrays easily.
 
 It's also important to remember to wrap dynamic data in the v function from golden-path in case it might have special tokens that might break the Golden Path parser.
