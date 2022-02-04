@@ -19,25 +19,23 @@ export const createStore = (storesGroupSymbol, options) => {
 
     const _subscriptions = [];
 
-    const notifySubscribersIfRelevant = (state, newState, isInitialRender) => {
+    const notifySubscribersIfStateWasChanged = (storeName, state, newState, isInitialRender = false) => {
         if (state !== newState || isInitialRender) {
-            externalState = { state: newState, prevState: isInitialRender ? {} : state, setState };
-            storesGroupSymbol[symbol][name].dirty = true;
-
-            Object.values(storesGroupSymbol[symbol]).forEach((store) => {
-                if (store.dirty) {
-                    store._subscriptions.forEach((s) => s());
-                    store.dirty = false;
-                }
-            });
+            storesGroupSymbol[symbol][storeName]._subscriptions.forEach((s) => s());
         }
     };
 
-    const setState = (path, value, isInitialRender) => {
+    const setState = (path, value, isInitialRender = false, notifySubscribers = true) => {
         traceUpdates({ path, value, name });
         const { state } = storesGroupSymbol[symbol][name].getSnapshot();
         const newState = update(path, value, state);
-        notifySubscribersIfRelevant(state, newState, isInitialRender);
+        externalState = { state: newState, prevState: isInitialRender ? {} : state, setState };
+
+        if (notifySubscribers) {
+            notifySubscribersIfStateWasChanged(name, state, newState, isInitialRender);
+        }
+
+        return newState;
     };
 
     setState.batchUpdates = (updates) => {
@@ -49,7 +47,7 @@ export const createStore = (storesGroupSymbol, options) => {
             newState = update(path, value, newState);
         });
 
-        notifySubscribersIfRelevant(state, newState, false);
+        notifySubscribersIfStateWasChanged(name, state, newState, false);
     };
 
     let externalState = { state: initialState, prevState: {}, setState };
@@ -73,6 +71,7 @@ export const createStore = (storesGroupSymbol, options) => {
 
     store._options = options;
     store._subscriptions = _subscriptions;
+    store._notifySubscribersIfStateWasChanged = notifySubscribersIfStateWasChanged;
 
     storesGroupSymbol[symbol][name] = store;
     return store;

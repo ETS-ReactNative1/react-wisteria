@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWisteriaStateSlice, useWisteriaStateUpdater, connect, useWisteriaStore } from '../../../src';
+import { useWisteriaStateSlice, connect, useWisteriaStore, useWisteriaBatchUpdater } from '../../../src';
 import './style.scss';
 
 const Controls = ({ onAddition, onDecrement, onConsole }) => {
@@ -17,14 +17,22 @@ const Controls = ({ onAddition, onDecrement, onConsole }) => {
 const useStateToProps = () => {
     const store = useWisteriaStore('my-store');
     const countx = useWisteriaStateSlice(store, 'countx');
-    const setContext = useWisteriaStateUpdater(store);
+    const batchUpdater = useWisteriaBatchUpdater();
+    // const setContext = useWisteriaStateUpdater(store);
 
     const onAddition = () => {
-        setContext('count', (count) => count + 1)
+        batchUpdater([
+            ['my-store', 'count', (count) => count + 1],
+            ['my-store', 'count', (count) => count + 1],
+            ['my-store', 'somethingElse', Math.random()]
+        ]);
     };
 
     const onDecrement = () => {
-        setContext('count', (count) => count - 1)
+        batchUpdater([
+            ['my-store', 'count', (count) => count - 1],
+            ['my-store', 'somethingElse', Math.random()]
+        ]);
     };
 
     const onConsole = () => {
