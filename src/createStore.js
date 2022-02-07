@@ -26,9 +26,9 @@ export const createStore = (storesGroupSymbol, options) => {
     };
 
     const setState = (path, value, isInitialRender = false, notifySubscribers = true) => {
-        traceUpdates({ path, value, name });
         const { state } = storesGroupSymbol[symbol][name].getSnapshot();
         const newState = update(path, value, state);
+        traceUpdates({ path, value, name, isChanged: state !== newState });
         externalState = { state: newState, prevState: isInitialRender ? {} : state, setState };
 
         if (notifySubscribers) {
