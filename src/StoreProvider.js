@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useWisteriaState } from './useWisteriaState';
-import Effects from './Effects';
 import StoreContext from './context';
 
 const LogToWindow = ({ store, name }) => {
@@ -25,12 +24,29 @@ const Provider = ({
     name,
     store,
     effects = []
-}) => (
-    <>
-        <Effects effects={effects}/>
-        <LogToWindow name={name} store={store}/>
-    </>
-);
+}) => {
+  
+    const EffectComponents = effects.map((effect, idx) => {
+        const Comp = () => {
+            effect();
+
+            return null;
+        }
+
+        Comp.displayName = `${idx + 1} - ${effect.name} (${name})`;
+
+        return Comp;
+    });
+
+    return (
+        <>
+            {EffectComponents.map((Effect) => (
+                <Effect key={Effect.displayName}/>
+            ))}
+            <LogToWindow name={name} store={store}/>
+        </>
+    );
+}
 
 const StoreProvider = ({ children, stores }) => {
     if (!Array.isArray(stores)) {
