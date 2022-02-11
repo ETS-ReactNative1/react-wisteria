@@ -19,20 +19,20 @@ export const createStore = (storesGroupSymbol, options) => {
 
     const _subscriptions = [];
 
-    const notifySubscribersIfStateWasChanged = (storeName, state, newState, isInitialRender = false) => {
-        if (state !== newState || isInitialRender) {
+    const notifySubscribersIfStateWasChanged = (storeName, state, newState) => {
+        if (state !== newState) {
             storesGroupSymbol[symbol][storeName]._subscriptions.forEach((s) => s());
         }
     };
 
-    const setState = (path, value, isInitialRender = false, notifySubscribers = true) => {
+    const setState = (path, value, notifySubscribers = true) => {
         const { state } = storesGroupSymbol[symbol][name].getSnapshot();
         const newState = update(path, value, state);
         traceUpdates({ path, value, name, isChanged: state !== newState });
-        externalState = { state: newState, prevState: isInitialRender ? {} : state, setState };
+        externalState = { state: newState, prevState: state, setState };
 
         if (notifySubscribers) {
-            notifySubscribersIfStateWasChanged(name, state, newState, isInitialRender);
+            notifySubscribersIfStateWasChanged(name, state, newState);
         }
 
         return newState;
@@ -43,7 +43,7 @@ export const createStore = (storesGroupSymbol, options) => {
         let newState = state;
 
         updates.forEach(([ path, value ]) => {
-            newState = setState(path, value, false, false);
+            newState = setState(path, value, false);
         });
 
         notifySubscribersIfStateWasChanged(name, state, newState, false);
@@ -87,10 +87,6 @@ export const useCreateStores = (storesConfig) => {
                 name, initialState: initialPropsMapper(initialState), effects
             }))
             .map((opt) => createStore(storesGroupSymbolRef.current, { ...opt, symbol }));
-        storesRef.current.forEach((store) => {
-            const { setState } = store.getSnapshot();
-            setState('', (v) => v, true);
-        });
     }
 
     return storesRef.current;
