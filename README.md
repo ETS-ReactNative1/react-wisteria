@@ -231,4 +231,6 @@ export default Counter;
 
 You can debug and trace your state updates by adding to the url the `?debugWisteria` query param, or by setting `window.isWisteriaDebugModeForced` to `true`, You can also inspect your stores state last value by using `window.ReactWisteriaStores` and update them by using `window.ReactWisteriaStoresUpdaters`.
 
+Doing `?debugWisteria=changed` will console only real updates with different value than the current one, with only `?debugWisteria` you might see unchanged updates and this might spam your console.
+
 ![image](https://user-images.githubusercontent.com/7091543/80594046-f6143380-8a2a-11ea-86ea-222984922cd7.png)
