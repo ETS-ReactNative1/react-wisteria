@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useWisteriaStateSlice } from './useWisteriaState';
 import StoreContext from './context';
-import { useWisteriaStateUpdater } from '.';
+import { useWisteriaStateUpdater } from './useWisteriaState';
 
 const LogToWindow = ({ store, name }) => {
     const context = useWisteriaStateSlice(store);

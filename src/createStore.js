@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import traceUpdates from './traceUpdates';
-import { update } from 'golden-path';
+import { update, clearPathResolverCache } from 'golden-path';
 
 export const createStore = (storesGroupSymbol, options) => {
     const { initialState, name, symbol } = options;
@@ -82,6 +82,7 @@ export const useCreateStores = (storesConfig) => {
     const storesRef = useRef();
 
     if (!storesRef.current) {
+        clearPathResolverCache();
         storesRef.current = storesConfig
             .map(({ name, initialState = {}, effects = [], initialPropsMapper = (x) => x }) => ({
                 name, initialState: initialPropsMapper(initialState), effects
